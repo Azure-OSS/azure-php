@@ -6,11 +6,13 @@ namespace AzureOss\Tests\Storage\BlobFlysystem\Integration;
 
 use AzureOss\Storage\Blob\BlobContainerClient;
 use AzureOss\Storage\Blob\BlobServiceClient;
+use AzureOss\Storage\Blob\Models\BlobErrorCode;
 use AzureOss\Storage\BlobFlysystem\AzureBlobStorageAdapter;
 use AzureOss\Tests\RequiresEnvironmentVariables;
 use League\Flysystem\AdapterTestUtilities\FilesystemAdapterTestCase;
 use League\Flysystem\Config;
 use League\Flysystem\FilesystemAdapter;
+use League\Flysystem\UnableToReadFile;
 use League\Flysystem\UnableToWriteFile;
 use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\Test;
@@ -234,6 +236,22 @@ class AzureBlobStorageTest extends FilesystemAdapterTestCase
             self::fail('Expected overwriting an existing file to fail.');
         } catch (UnableToWriteFile) {
             self::assertSame('original', $adapter->read('create-only.txt'));
+        }
+    }
+
+    #[Test]
+    public function it_reports_the_azure_error_code_as_the_failure_reason(): void
+    {
+        $adapter = $this->adapter();
+
+        try {
+            $adapter->read('does-not-exist.txt');
+            self::fail('Expected reading a missing blob to fail.');
+        } catch (UnableToReadFile $exception) {
+            self::assertStringContainsString(
+                BlobErrorCode::BlobNotFound->value,
+                $exception->reason(),
+            );
         }
     }
 

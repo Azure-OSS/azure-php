@@ -54,6 +54,10 @@ final class AzureBlobStorageAdapterTest extends TestCase
                 'initialTransferSize must be an int.',
                 $exception->getPrevious()?->getMessage(),
             );
+            self::assertSame(
+                'initialTransferSize must be an int.',
+                $exception->reason(),
+            );
         }
     }
 
