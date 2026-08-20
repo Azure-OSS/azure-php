@@ -60,6 +60,8 @@
       "php-http/discovery": true,
       "phpdocumentor/shim": true,
       "phpstan/extension-installer": true
+    },
+    "platform": {
     }
   },
   "scripts": {

@@ -83,7 +83,7 @@ jobs:
 
       - name: Remove Laravel-only dependencies
         run: |
-          composer remove --dev orchestra/testbench --no-update --no-interaction
+          composer remove --dev laravel/pint orchestra/testbench --no-update --no-interaction
           composer require --dev php:^8.2 --no-update --no-interaction
 
       - name: Download dependencies

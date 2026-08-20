@@ -40,7 +40,7 @@ jobs:
 
       - name: Select core dependencies
         run: |
-          composer remove --dev orchestra/testbench --no-update --no-interaction
+          composer remove --dev laravel/pint orchestra/testbench --no-update --no-interaction
           composer require --dev php:^8.2 --no-update --no-interaction
 
       - name: Install dependencies
@@ -76,7 +76,7 @@ jobs:
 
       - name: Select Guzzle 7 dependencies
         run: |
-          composer remove --dev orchestra/testbench --no-update --no-interaction
+          composer remove --dev laravel/pint orchestra/testbench --no-update --no-interaction
           composer require --dev php:^8.2 caseyamcl/guzzle_retry_middleware:^2.13 guzzlehttp/guzzle:^7.8 guzzlehttp/test-server:^0.6 --no-update --no-interaction
 
       - name: Install dependencies
@@ -154,7 +154,7 @@ jobs:
           coverage: none
 
       - name: Remove core-only test dependencies
-        run: composer remove --dev pestphp/pest pestphp/pest-plugin-arch brianium/paratest --no-update --no-interaction
+        run: composer remove --dev brianium/paratest laravel/pint pestphp/pest pestphp/pest-plugin-arch --no-update --no-interaction
 
       - name: Select Laravel dependencies
         run: composer require --dev "php:${{ matrix.php-constraint }}" "orchestra/testbench:${{ matrix.testbench }}" "phpunit/phpunit:${{ matrix.phpunit }}" "guzzlehttp/guzzle:${{ matrix.guzzle }}" "caseyamcl/guzzle_retry_middleware:${{ matrix.retry }}" "guzzlehttp/test-server:${{ matrix.test-server }}" --no-update --no-interaction
