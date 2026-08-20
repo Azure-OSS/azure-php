@@ -38,6 +38,7 @@ use AzureOss\Storage\Common\Helpers\StorageUriParserHelper;
 use AzureOss\Storage\Common\Middleware\ClientFactory;
 use AzureOss\Storage\Common\Sas\SasProtocol;
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\RequestOptions;
@@ -151,7 +152,9 @@ final class BlobContainerClient
     public function createIfNotExistsAsync(CreateContainerOptions $options = new CreateContainerOptions): PromiseInterface
     {
         return $this->createAsync($options)
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof BlobStorageException && $e->errorCode === BlobErrorCode::ContainerAlreadyExists) {
                     return;
                 }
@@ -190,7 +193,9 @@ final class BlobContainerClient
     public function deleteIfExistsAsync(DeleteContainerOptions $options = new DeleteContainerOptions): PromiseInterface
     {
         return $this->deleteAsync($options)
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof BlobStorageException && $e->errorCode === BlobErrorCode::ContainerNotFound) {
                     return;
                 }
@@ -216,7 +221,9 @@ final class BlobContainerClient
                 ],
             ])
             ->then(fn () => true)
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof BlobStorageException && $e->errorCode === BlobErrorCode::ContainerNotFound) {
                     return false;
                 }

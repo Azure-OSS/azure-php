@@ -6,6 +6,7 @@ namespace AzureOss\Storage\Common\Middleware;
 
 use AzureOss\Storage\Common\Exceptions\RequestExceptionDeserializer;
 use GuzzleHttp\Exception\RequestException;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\Promise;
 use Psr\Http\Message\RequestInterface;
 
@@ -22,7 +23,9 @@ final class DeserializeExceptionMiddleware
             /** @var Promise $promise */
             $promise = $handler($request, $options);
 
-            return $promise->otherwise(function (\Throwable $e) {
+            return $promise->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof RequestException) {
                     throw $this->exceptionDeserializer->deserialize($e);
                 }

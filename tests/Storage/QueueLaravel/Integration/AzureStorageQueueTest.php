@@ -9,6 +9,7 @@ use AzureOss\Storage\QueueLaravel\AzureStorageQueueJob;
 use AzureOss\Storage\QueueLaravel\AzureStorageQueueServiceProvider;
 use AzureOss\Tests\Storage\CreatesTempQueues;
 use AzureOss\Tests\Storage\RetryableAssertions;
+use Illuminate\Contracts\Queue\Queue as QueueContract;
 use Illuminate\Queue\QueueManager;
 use Orchestra\Testbench\TestCase;
 use PHPUnit\Framework\Attributes\Test;
@@ -130,7 +131,7 @@ final class AzureStorageQueueTest extends TestCase
         self::assertSame(2, $queue->pendingSize($queueName));
         self::assertSame(0, $queue->delayedSize($queueName));
         self::assertSame(0, $queue->reservedSize($queueName));
-        self::assertNull($queue->creationTimeOfOldestPendingJob($queueName));
+        self::assertNull($this->creationTimeOfOldestPendingJob($queue, $queueName));
 
         self::assertSame(2, $queue->clear($queueName));
         self::assertNull($queue->pop($queueName));
@@ -221,5 +222,10 @@ final class AzureStorageQueueTest extends TestCase
         }
 
         self::fail('Expected a job to become available.');
+    }
+
+    private function creationTimeOfOldestPendingJob(QueueContract $queue, string $queueName): ?int
+    {
+        return $queue->creationTimeOfOldestPendingJob($queueName);
     }
 }

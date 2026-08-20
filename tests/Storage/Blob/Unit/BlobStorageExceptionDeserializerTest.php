@@ -67,10 +67,21 @@ final class BlobStorageExceptionDeserializerTest extends TestCase
         self::assertSame(404, $exception->statusCode);
     }
 
+    #[Test]
+    public function it_preserves_request_exceptions_without_a_response(): void
+    {
+        $requestException = RequestException::create(new Request('GET', '/'));
+
+        self::assertSame(
+            $requestException,
+            (new BlobStorageExceptionDeserializer)->deserialize($requestException),
+        );
+    }
+
     private function deserialize(Response $response): BlobStorageException
     {
         $exception = (new BlobStorageExceptionDeserializer)->deserialize(
-            new RequestException('Azure request failed.', new Request('GET', '/'), $response),
+            RequestException::create(new Request('GET', '/'), $response),
         );
 
         self::assertInstanceOf(BlobStorageException::class, $exception);

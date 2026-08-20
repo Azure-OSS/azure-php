@@ -16,6 +16,7 @@ use AzureOss\Storage\Blob\Models\RequestConditionSet;
 use AzureOss\Storage\Blob\Models\StageBlockOptions;
 use AzureOss\Storage\Blob\Requests\PutBlockRequestBody;
 use AzureOss\Storage\Common\Auth\StorageSharedKeyCredential;
+use AzureOss\Storage\Common\Helpers\HttpRequestHelper;
 use AzureOss\Storage\Common\Middleware\ClientFactory;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -121,11 +122,11 @@ final class BlockBlobClient
                 RequestOptions::QUERY => [
                     'comp' => 'blocklist',
                 ],
-                RequestOptions::HEADERS => [
+                RequestOptions::HEADERS => HttpRequestHelper::headers([
                     ...$options->httpHeaders->toArray(),
                     ...($options->conditions?->toHeaders('BlockBlobClient::commitBlockList', RequestConditionSet::ALL) ?? []),
-                ],
-                'body' => (new PutBlockRequestBody($base64BlockIds))->toXml()->asXML(),
+                ]),
+                RequestOptions::BODY => HttpRequestHelper::xml((new PutBlockRequestBody($base64BlockIds))->toXml()),
             ]);
     }
 }

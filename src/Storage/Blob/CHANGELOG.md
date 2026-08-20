@@ -2,7 +2,10 @@
 
 ## Unreleased
 
-No user-facing changes since `2.2.2`.
+### Changed
+
+- Added support for Guzzle 8 while retaining Guzzle 7 support.
+- Lease break requests now send their optional break period as an HTTP header string, as required by Guzzle 8.
 
 ## 2.2.2
 

@@ -6,6 +6,7 @@ namespace AzureOss\Storage\Queue;
 
 use AzureOss\Identity\TokenCredential;
 use AzureOss\Storage\Common\Auth\StorageSharedKeyCredential;
+use AzureOss\Storage\Common\Helpers\HttpRequestHelper;
 use AzureOss\Storage\Common\Middleware\ClientFactory;
 use AzureOss\Storage\Queue\Exceptions\QueueStorageException;
 use AzureOss\Storage\Queue\Exceptions\QueueStorageExceptionDeserializer;
@@ -20,6 +21,7 @@ use AzureOss\Storage\Queue\Responses\ReceiveMessagesResponseBody;
 use AzureOss\Storage\Queue\Responses\SendMessageResponseBody;
 use AzureOss\Storage\Queue\Responses\UpdateMessageResponseBody;
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
@@ -74,7 +76,9 @@ final class QueueClient
     public function createIfNotExistsAsync(): PromiseInterface
     {
         return $this->createAsync()
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof QueueStorageException && $e->errorCode === QueueErrorCode::QueueAlreadyExists) {
                     return;
                 }
@@ -105,7 +109,9 @@ final class QueueClient
     public function deleteIfExistsAsync(): PromiseInterface
     {
         return $this->deleteAsync()
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof QueueStorageException && $e->errorCode === QueueErrorCode::QueueNotFound) {
                     return;
                 }
@@ -131,7 +137,9 @@ final class QueueClient
                 ],
             ])
             ->then(fn () => true)
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof QueueStorageException && $e->errorCode === QueueErrorCode::QueueNotFound) {
                     return false;
                 }
@@ -197,7 +205,7 @@ final class QueueClient
         return $this->client
             ->postAsync($this->messagesUri(), [
                 RequestOptions::QUERY => $query,
-                RequestOptions::BODY => (new QueueMessageRequestBody($messageText))->toXml()->asXML(),
+                RequestOptions::BODY => HttpRequestHelper::xml((new QueueMessageRequestBody($messageText))->toXml()),
             ])
             ->then(SendMessageResponseBody::fromResponse(...));
     }
@@ -222,7 +230,7 @@ final class QueueClient
         ];
 
         if ($messageText !== null) {
-            $options[RequestOptions::BODY] = (new QueueMessageRequestBody($messageText))->toXml()->asXML();
+            $options[RequestOptions::BODY] = HttpRequestHelper::xml((new QueueMessageRequestBody($messageText))->toXml());
         }
 
         return $this->client
@@ -257,7 +265,18 @@ final class QueueClient
     public function receiveMessageAsync(?int $visibilityTimeout = null): PromiseInterface
     {
         return $this->receiveMessagesAsync(1, $visibilityTimeout)
-            ->then(fn (array $messages) => $messages[0] ?? null);
+            ->then(function (mixed $messages): ?QueueMessage {
+                if (! is_array($messages)) {
+                    throw new \UnexpectedValueException('Expected the receive operation to return a message list.');
+                }
+
+                $message = $messages[0] ?? null;
+                if ($message !== null && ! $message instanceof QueueMessage) {
+                    throw new \UnexpectedValueException('Expected the receive operation to return queue messages.');
+                }
+
+                return $message;
+            });
     }
 
     /**

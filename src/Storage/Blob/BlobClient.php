@@ -44,11 +44,13 @@ use AzureOss\Storage\Blob\Sas\BlobSasBuilder;
 use AzureOss\Storage\Blob\Specialized\BlobLeaseClient;
 use AzureOss\Storage\Blob\Specialized\BlockBlobClient;
 use AzureOss\Storage\Common\Auth\StorageSharedKeyCredential;
+use AzureOss\Storage\Common\Helpers\HttpRequestHelper;
 use AzureOss\Storage\Common\Helpers\StorageUriParserHelper;
 use AzureOss\Storage\Common\Middleware\ClientFactory;
 use AzureOss\Storage\Common\Sas\SasProtocol;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Utils as StreamUtils;
@@ -284,7 +286,9 @@ final class BlobClient
     public function deleteIfExistsAsync(DeleteBlobOptions $options = new DeleteBlobOptions): PromiseInterface
     {
         return $this->deleteAsync($options)->otherwise(
-            function (\Throwable $e) {
+            function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof BlobStorageException && $e->errorCode === BlobErrorCode::BlobNotFound) {
                     return null;
                 }
@@ -307,7 +311,9 @@ final class BlobClient
         return $this->getPropertiesAsync()
             ->then(fn () => true)
             ->otherwise(
-                function (\Throwable $e) {
+                function (mixed $reason) {
+                    $e = Create::exceptionFor($reason);
+
                     if ($e instanceof BlobStorageException && $e->errorCode === BlobErrorCode::BlobNotFound) {
                         return false;
                     }
@@ -670,8 +676,10 @@ final class BlobClient
                 RequestOptions::QUERY => [
                     'comp' => 'tags',
                 ],
-                RequestOptions::HEADERS => $options->conditions?->toHeaders('BlobClient::setTags', RequestConditionSet::ALL) ?? [],
-                RequestOptions::BODY => (new BlobTagsBody($tags))->toXml()->asXML(),
+                RequestOptions::HEADERS => HttpRequestHelper::headers(
+                    $options->conditions?->toHeaders('BlobClient::setTags', RequestConditionSet::ALL) ?? [],
+                ),
+                RequestOptions::BODY => HttpRequestHelper::xml((new BlobTagsBody($tags))->toXml()),
             ]);
     }
 

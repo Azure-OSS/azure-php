@@ -17,6 +17,7 @@ use AzureOss\Storage\Blob\Models\ReleasedObjectInfo;
 use AzureOss\Storage\Blob\Models\RenewBlobLeaseOptions;
 use AzureOss\Storage\Blob\Models\RequestConditionSet;
 use AzureOss\Storage\Common\Auth\StorageSharedKeyCredential;
+use AzureOss\Storage\Common\Helpers\HttpRequestHelper;
 use AzureOss\Storage\Common\Middleware\ClientFactory;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -67,12 +68,12 @@ final class BlobLeaseClient
                 'comp' => 'lease',
                 'restype' => $this->container ? 'container' : null,
             ]),
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS => HttpRequestHelper::headers([
                 'x-ms-lease-action' => 'acquire',
                 'x-ms-lease-duration' => (string) $durationSeconds,
                 'x-ms-proposed-lease-id' => $this->leaseId,
                 ...$conditionHeaders,
-            ],
+            ]),
         ])->then($this->updateLeaseIdFromResponse(...));
     }
 
@@ -93,11 +94,11 @@ final class BlobLeaseClient
                 'comp' => 'lease',
                 'restype' => $this->container ? 'container' : null,
             ]),
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS => HttpRequestHelper::headers([
                 ...$conditionHeaders,
                 'x-ms-lease-action' => 'renew',
                 'x-ms-lease-id' => $this->leaseId,
-            ],
+            ]),
         ])->then($this->updateLeaseIdFromResponse(...));
     }
 
@@ -118,12 +119,12 @@ final class BlobLeaseClient
                 'comp' => 'lease',
                 'restype' => $this->container ? 'container' : null,
             ]),
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS => HttpRequestHelper::headers([
                 ...$conditionHeaders,
                 'x-ms-lease-action' => 'change',
                 'x-ms-lease-id' => $this->leaseId,
                 'x-ms-proposed-lease-id' => $proposedLeaseId,
-            ],
+            ]),
         ])->then(function (ResponseInterface $response) use ($proposedLeaseId): BlobLease {
             $this->leaseId = $response->hasHeader('x-ms-lease-id')
                 ? $response->getHeaderLine('x-ms-lease-id')
@@ -150,11 +151,11 @@ final class BlobLeaseClient
                 'comp' => 'lease',
                 'restype' => $this->container ? 'container' : null,
             ]),
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS => HttpRequestHelper::headers([
                 ...$conditionHeaders,
                 'x-ms-lease-action' => 'release',
                 'x-ms-lease-id' => $this->leaseId,
-            ],
+            ]),
         ])->then(ReleasedObjectInfo::fromResponse(...));
     }
 
@@ -178,7 +179,7 @@ final class BlobLeaseClient
             RequestOptions::HEADERS => array_filter([
                 ...$conditionHeaders,
                 'x-ms-lease-action' => 'break',
-                'x-ms-lease-break-period' => $breakPeriodSeconds,
+                'x-ms-lease-break-period' => $breakPeriodSeconds !== null ? (string) $breakPeriodSeconds : null,
             ], fn ($value) => $value !== null),
         ])->then(fn (ResponseInterface $response): BlobLease => BlobLease::fromResponse($response));
     }

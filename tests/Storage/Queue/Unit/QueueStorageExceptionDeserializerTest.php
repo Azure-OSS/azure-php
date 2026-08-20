@@ -67,10 +67,21 @@ final class QueueStorageExceptionDeserializerTest extends TestCase
         self::assertSame(404, $exception->statusCode);
     }
 
+    #[Test]
+    public function it_preserves_request_exceptions_without_a_response(): void
+    {
+        $requestException = RequestException::create(new Request('GET', '/'));
+
+        self::assertSame(
+            $requestException,
+            (new QueueStorageExceptionDeserializer)->deserialize($requestException),
+        );
+    }
+
     private function deserialize(Response $response): QueueStorageException
     {
         $exception = (new QueueStorageExceptionDeserializer)->deserialize(
-            new RequestException('Azure request failed.', new Request('GET', '/'), $response),
+            RequestException::create(new Request('GET', '/'), $response),
         );
 
         self::assertInstanceOf(QueueStorageException::class, $exception);
