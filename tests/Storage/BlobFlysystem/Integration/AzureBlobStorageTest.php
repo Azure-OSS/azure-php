@@ -12,6 +12,8 @@ use AzureOss\Tests\RequiresEnvironmentVariables;
 use League\Flysystem\AdapterTestUtilities\FilesystemAdapterTestCase;
 use League\Flysystem\Config;
 use League\Flysystem\FilesystemAdapter;
+use League\Flysystem\UnableToDeleteDirectory;
+use League\Flysystem\UnableToListContents;
 use League\Flysystem\UnableToReadFile;
 use League\Flysystem\UnableToWriteFile;
 use League\Flysystem\Visibility;
@@ -250,6 +252,26 @@ class AzureBlobStorageTest extends FilesystemAdapterTestCase
         } catch (UnableToReadFile $exception) {
             self::assertStringContainsString(
                 BlobErrorCode::BlobNotFound->value,
+                $exception->reason(),
+            );
+        }
+    }
+
+    #[Test]
+    public function it_reports_a_nested_azure_error_code_as_the_failure_reason(): void
+    {
+        $connectionString = self::getRequiredEnvironmentVariable('AZURE_STORAGE_CONNECTION_STRING');
+        $containerClient = BlobServiceClient::fromConnectionString($connectionString)
+            ->getContainerClient('missing-'.bin2hex(random_bytes(8)));
+        $adapter = new AzureBlobStorageAdapter($containerClient);
+
+        try {
+            $adapter->deleteDirectory('docs');
+            self::fail('Expected deleting from a missing container to fail.');
+        } catch (UnableToDeleteDirectory $exception) {
+            self::assertInstanceOf(UnableToListContents::class, $exception->getPrevious());
+            self::assertStringContainsString(
+                BlobErrorCode::ContainerNotFound->value,
                 $exception->reason(),
             );
         }
