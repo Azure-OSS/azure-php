@@ -124,11 +124,14 @@ final class BlobClient
     /** Creates a read-only snapshot of the base blob. */
     public function createSnapshot(CreateSnapshotOptions $options = new CreateSnapshotOptions): BlobSnapshotInfo
     {
-        /** @phpstan-ignore-next-line */
         return $this->createSnapshotAsync($options)->wait();
     }
 
-    /** Asynchronously creates a read-only snapshot of the base blob. */
+    /**
+     * Asynchronously creates a read-only snapshot of the base blob.
+     *
+     * @return PromiseInterface<BlobSnapshotInfo, mixed>
+     */
     public function createSnapshotAsync(CreateSnapshotOptions $options = new CreateSnapshotOptions): PromiseInterface
     {
         return $this->client
@@ -145,11 +148,14 @@ final class BlobClient
     /** Downloads the blob as a streaming response. */
     public function downloadStreaming(DownloadBlobOptions $options = new DownloadBlobOptions): BlobDownloadStreamingResult
     {
-        /** @phpstan-ignore-next-line */
         return $this->downloadStreamingAsync($options)->wait();
     }
 
-    /** Asynchronously downloads the blob as a streaming response. */
+    /**
+     * Asynchronously downloads the blob as a streaming response.
+     *
+     * @return PromiseInterface<BlobDownloadStreamingResult, mixed>
+     */
     public function downloadStreamingAsync(DownloadBlobOptions $options = new DownloadBlobOptions): PromiseInterface
     {
         return $this->client
@@ -163,11 +169,14 @@ final class BlobClient
     /** Gets the blob's properties and metadata without downloading its content. */
     public function getProperties(GetBlobPropertiesOptions $options = new GetBlobPropertiesOptions): BlobProperties
     {
-        /** @phpstan-ignore-next-line */
         return $this->getPropertiesAsync($options)->wait();
     }
 
-    /** Asynchronously gets the blob's properties and metadata. */
+    /**
+     * Asynchronously gets the blob's properties and metadata.
+     *
+     * @return PromiseInterface<BlobProperties, mixed>
+     */
     public function getPropertiesAsync(GetBlobPropertiesOptions $options = new GetBlobPropertiesOptions): PromiseInterface
     {
         return $this->client
@@ -301,11 +310,14 @@ final class BlobClient
     /** Determines whether the blob exists. */
     public function exists(): bool
     {
-        /** @phpstan-ignore-next-line */
         return $this->existsAsync()->wait();
     }
 
-    /** Asynchronously determines whether the blob exists. */
+    /**
+     * Asynchronously determines whether the blob exists.
+     *
+     * @return PromiseInterface<bool, \Throwable>
+     */
     public function existsAsync(): PromiseInterface
     {
         return $this->getPropertiesAsync()
@@ -470,11 +482,14 @@ final class BlobClient
     /** Copies a source blob to this blob in a synchronous service operation. */
     public function syncCopyFromUri(UriInterface $source, SyncCopyFromUriOptions $options = new SyncCopyFromUriOptions): BlobCopyResult
     {
-        /** @phpstan-ignore-next-line */
         return $this->syncCopyFromUriAsync($source, $options)->wait();
     }
 
-    /** Asynchronously performs a synchronous server-side copy to this blob. */
+    /**
+     * Asynchronously performs a synchronous server-side copy to this blob.
+     *
+     * @return PromiseInterface<BlobCopyResult, mixed>
+     */
     public function syncCopyFromUriAsync(UriInterface $source, SyncCopyFromUriOptions $options = new SyncCopyFromUriOptions): PromiseInterface
     {
         return $this->client
@@ -499,11 +514,14 @@ final class BlobClient
     /** Starts a potentially long-running server-side copy to this blob. */
     public function startCopyFromUri(UriInterface $source, StartCopyFromUriOptions $options = new StartCopyFromUriOptions): BlobCopyResult
     {
-        /** @phpstan-ignore-next-line */
         return $this->startCopyFromUriAsync($source, $options)->wait();
     }
 
-    /** Asynchronously starts a potentially long-running server-side copy. */
+    /**
+     * Asynchronously starts a potentially long-running server-side copy.
+     *
+     * @return PromiseInterface<BlobCopyResult, mixed>
+     */
     public function startCopyFromUriAsync(UriInterface $source, StartCopyFromUriOptions $options = new StartCopyFromUriOptions): PromiseInterface
     {
         return $this->client
@@ -690,11 +708,14 @@ final class BlobClient
      */
     public function getTags(GetBlobTagsOptions $options = new GetBlobTagsOptions): array
     {
-        /** @phpstan-ignore-next-line */
         return $this->getTagsAsync($options)->wait();
     }
 
-    /** Asynchronously gets all index tags associated with the blob. */
+    /**
+     * Asynchronously gets all index tags associated with the blob.
+     *
+     * @return PromiseInterface<array<string>, mixed>
+     */
     public function getTagsAsync(GetBlobTagsOptions $options = new GetBlobTagsOptions): PromiseInterface
     {
         return $this->client

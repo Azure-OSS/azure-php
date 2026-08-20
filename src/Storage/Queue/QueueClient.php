@@ -123,11 +123,14 @@ final class QueueClient
     /** Determines whether the queue exists. */
     public function exists(): bool
     {
-        /** @phpstan-ignore-next-line */
         return $this->existsAsync()->wait();
     }
 
-    /** Asynchronously determines whether the queue exists. */
+    /**
+     * Asynchronously determines whether the queue exists.
+     *
+     * @return PromiseInterface<bool, \Throwable>
+     */
     public function existsAsync(): PromiseInterface
     {
         return $this->client
@@ -151,11 +154,14 @@ final class QueueClient
     /** Gets queue metadata and approximate message count. */
     public function getProperties(): QueueProperties
     {
-        /** @phpstan-ignore-next-line */
         return $this->getPropertiesAsync()->wait();
     }
 
-    /** Asynchronously gets queue metadata and approximate message count. */
+    /**
+     * Asynchronously gets queue metadata and approximate message count.
+     *
+     * @return PromiseInterface<QueueProperties, mixed>
+     */
     public function getPropertiesAsync(): PromiseInterface
     {
         return $this->client
@@ -187,11 +193,14 @@ final class QueueClient
      */
     public function sendMessage(string $messageText, ?int $visibilityTimeout = null, ?int $timeToLive = null): SendReceipt
     {
-        /** @phpstan-ignore-next-line */
         return $this->sendMessageAsync($messageText, $visibilityTimeout, $timeToLive)->wait();
     }
 
-    /** Asynchronously adds a message to the queue. */
+    /**
+     * Asynchronously adds a message to the queue.
+     *
+     * @return PromiseInterface<SendReceipt, mixed>
+     */
     public function sendMessageAsync(string $messageText, ?int $visibilityTimeout = null, ?int $timeToLive = null): PromiseInterface
     {
         $query = [];
@@ -215,11 +224,14 @@ final class QueueClient
      */
     public function updateMessage(string $messageId, string $popReceipt, int $visibilityTimeout, ?string $messageText = null): UpdateReceipt
     {
-        /** @phpstan-ignore-next-line */
         return $this->updateMessageAsync($messageId, $popReceipt, $visibilityTimeout, $messageText)->wait();
     }
 
-    /** Asynchronously updates a message's content or visibility timeout. */
+    /**
+     * Asynchronously updates a message's content or visibility timeout.
+     *
+     * @return PromiseInterface<UpdateReceipt, mixed>
+     */
     public function updateMessageAsync(string $messageId, string $popReceipt, int $visibilityTimeout, ?string $messageText = null): PromiseInterface
     {
         $options = [
@@ -257,26 +269,18 @@ final class QueueClient
     /** Receives the next visible message, or null when the queue has no visible messages. */
     public function receiveMessage(?int $visibilityTimeout = null): ?QueueMessage
     {
-        /** @phpstan-ignore-next-line */
         return $this->receiveMessageAsync($visibilityTimeout)->wait();
     }
 
-    /** Asynchronously receives the next visible message. */
+    /**
+     * Asynchronously receives the next visible message.
+     *
+     * @return PromiseInterface<QueueMessage|null, mixed>
+     */
     public function receiveMessageAsync(?int $visibilityTimeout = null): PromiseInterface
     {
         return $this->receiveMessagesAsync(1, $visibilityTimeout)
-            ->then(function (mixed $messages): ?QueueMessage {
-                if (! is_array($messages)) {
-                    throw new \UnexpectedValueException('Expected the receive operation to return a message list.');
-                }
-
-                $message = $messages[0] ?? null;
-                if ($message !== null && ! $message instanceof QueueMessage) {
-                    throw new \UnexpectedValueException('Expected the receive operation to return queue messages.');
-                }
-
-                return $message;
-            });
+            ->then(fn (array $messages): ?QueueMessage => $messages[0] ?? null);
     }
 
     /**
@@ -288,11 +292,14 @@ final class QueueClient
      */
     public function receiveMessages(?int $maxMessages = null, ?int $visibilityTimeout = null): array
     {
-        /** @phpstan-ignore-next-line  */
         return $this->receiveMessagesAsync($maxMessages, $visibilityTimeout)->wait();
     }
 
-    /** Asynchronously receives a batch of visible messages. */
+    /**
+     * Asynchronously receives a batch of visible messages.
+     *
+     * @return PromiseInterface<array<QueueMessage>, mixed>
+     */
     public function receiveMessagesAsync(?int $maxMessages = null, ?int $visibilityTimeout = null): PromiseInterface
     {
         $query = [];

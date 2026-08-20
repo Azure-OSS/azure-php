@@ -207,11 +207,14 @@ final class BlobContainerClient
     /** Determines whether the container exists. */
     public function exists(): bool
     {
-        /** @phpstan-ignore-next-line */
         return $this->existsAsync()->wait();
     }
 
-    /** Asynchronously determines whether the container exists. */
+    /**
+     * Asynchronously determines whether the container exists.
+     *
+     * @return PromiseInterface<bool, \Throwable>
+     */
     public function existsAsync(): PromiseInterface
     {
         return $this->client
@@ -235,11 +238,14 @@ final class BlobContainerClient
     /** Gets the container's properties and metadata. */
     public function getProperties(GetContainerPropertiesOptions $options = new GetContainerPropertiesOptions): BlobContainerProperties
     {
-        /** @phpstan-ignore-next-line */
         return $this->getPropertiesAsync($options)->wait();
     }
 
-    /** Asynchronously gets the container's properties and metadata. */
+    /**
+     * Asynchronously gets the container's properties and metadata.
+     *
+     * @return PromiseInterface<BlobContainerProperties, mixed>
+     */
     public function getPropertiesAsync(GetContainerPropertiesOptions $options = new GetContainerPropertiesOptions): PromiseInterface
     {
         return $this->client
