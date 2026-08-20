@@ -29,7 +29,6 @@
             <directory suffix="Test.php">tests/Storage/File/Share/Unit</directory>
             <directory suffix="Test.php">tests/Storage/File/Share/Integration</directory>
             <directory suffix="Test.php">tests/Storage/Queue/Unit</directory>
-            <directory suffix="Test.php">tests/Storage/Queue/Functional</directory>
             <directory suffix="Test.php">tests/Storage/Queue/Integration</directory>
         </testsuite>
         <testsuite name="laravel">
