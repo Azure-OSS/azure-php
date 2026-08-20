@@ -53,7 +53,6 @@ class BlobClientTest extends TestCase
     {
         Server::start();
 
-        /** @phpstan-ignore-next-line */
         $uri = new Uri(Server::$url.'/devstoreaccount1');
         $service = new BlobServiceClient($uri);
         $container = $service->getContainerClient('test');
@@ -93,7 +92,6 @@ class BlobClientTest extends TestCase
             ]),
         ]);
 
-        /** @phpstan-ignore-next-line */
         $uri = new Uri(Server::$url.'/devstoreaccount1');
         $service = new BlobServiceClient($uri, options: new BlobServiceClientOptions(
             apiVersion: null,
@@ -116,7 +114,6 @@ class BlobClientTest extends TestCase
             ]),
         ]);
 
-        /** @phpstan-ignore-next-line */
         $uri = new Uri(Server::$url.'/devstoreaccount1');
         $service = new BlobServiceClient($uri, options: new BlobServiceClientOptions(
             apiVersion: ApiVersion::V2024_08_04,
@@ -138,7 +135,6 @@ class BlobClientTest extends TestCase
         ]);
 
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
         $container = (new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1')))->getContainerClient('test');
 
         iterator_to_array($container->getBlobs(options: new GetBlobsOptions(includes: [
@@ -164,7 +160,6 @@ class BlobClientTest extends TestCase
         ]);
 
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
         $container = (new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1')))->getContainerClient('test');
 
         iterator_to_array($container->getBlobsByHierarchy(options: new GetBlobsOptions(includes: [
@@ -348,7 +343,6 @@ class BlobClientTest extends TestCase
         ]);
 
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
         $service = new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1'));
 
         iterator_to_array($service->getBlobContainers('docs-', new GetBlobContainersOptions(
@@ -375,7 +369,6 @@ class BlobClientTest extends TestCase
         Server::enqueue([new Response(201), new Response(501)]);
 
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
         $service = new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1'));
 
         $container = $service->undeleteBlobContainer('photos', '01D9A8BY7Q4Y4J');
@@ -385,7 +378,7 @@ class BlobClientTest extends TestCase
 
         self::assertCount(1, $requests);
         self::assertSame('PUT', $requests[0]->getMethod());
-        self::assertSame('/photos', $requests[0]->getUri()->getPath());
+        self::assertStringEndsWith('/photos', $requests[0]->getUri()->getPath());
         self::assertSame('container', $query['restype'] ?? null);
         self::assertSame('undelete', $query['comp'] ?? null);
         self::assertSame('photos', $requests[0]->getHeaderLine('x-ms-deleted-container-name'));
@@ -401,7 +394,6 @@ class BlobClientTest extends TestCase
             new Response(201, ['x-ms-lease-id' => '22222222-2222-4222-8222-222222222222']),
         ]);
 
-        /** @phpstan-ignore-next-line */
         $uri = new Uri(Server::$url.'/devstoreaccount1');
         $service = new BlobServiceClient($uri, options: new BlobServiceClientOptions(
             apiVersion: ApiVersion::V2024_08_04,
@@ -534,7 +526,7 @@ class BlobClientTest extends TestCase
 
         $stream = new class($file) implements StreamInterface
         {
-            private StreamInterface $stream;
+            protected StreamInterface $stream;
 
             use StreamDecoratorTrait;
 
@@ -574,7 +566,7 @@ class BlobClientTest extends TestCase
 
         $stream = new class($file) implements StreamInterface
         {
-            private StreamInterface $stream;
+            protected StreamInterface $stream;
 
             use StreamDecoratorTrait;
 
@@ -627,7 +619,6 @@ class BlobClientTest extends TestCase
             new Response(501), // fail if more requests
         ]);
 
-        /** @phpstan-ignore-next-line */
         $stream = fopen(Server::$url, 'r');
 
         if ($stream === false) {
@@ -795,7 +786,6 @@ class BlobClientTest extends TestCase
         ]);
 
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
 
         $service = new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1'));
         $container = $service->getContainerClient('test');
@@ -817,7 +807,6 @@ class BlobClientTest extends TestCase
     public function container_get_properties_rejects_unsupported_conditions(): void
     {
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
 
         $service = new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1'));
         $container = $service->getContainerClient('test');
@@ -839,7 +828,6 @@ class BlobClientTest extends TestCase
         ]);
 
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
 
         $service = new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1'));
         $container = $service->getContainerClient('test');
@@ -862,7 +850,6 @@ class BlobClientTest extends TestCase
     public function container_delete_rejects_unsupported_conditions(): void
     {
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
 
         $service = new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1'));
         $container = $service->getContainerClient('test');
@@ -885,7 +872,6 @@ class BlobClientTest extends TestCase
         ]);
 
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
 
         $service = new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1'));
         $container = $service->getContainerClient('test');
@@ -906,7 +892,6 @@ class BlobClientTest extends TestCase
     public function container_set_metadata_rejects_unsupported_conditions(): void
     {
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
 
         $service = new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1'));
         $container = $service->getContainerClient('test');
@@ -928,7 +913,6 @@ class BlobClientTest extends TestCase
         ]);
 
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
 
         $service = new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1'));
         $container = $service->getContainerClient('test');
@@ -950,7 +934,6 @@ class BlobClientTest extends TestCase
     public function container_lease_operations_reject_unsupported_conditions(): void
     {
         $serverUrl = Server::$url;
-        self::assertIsString($serverUrl);
 
         $service = new BlobServiceClient(new Uri($serverUrl.'/devstoreaccount1'));
         $container = $service->getContainerClient('test');

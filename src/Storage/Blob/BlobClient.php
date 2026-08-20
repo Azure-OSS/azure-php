@@ -44,11 +44,13 @@ use AzureOss\Storage\Blob\Sas\BlobSasBuilder;
 use AzureOss\Storage\Blob\Specialized\BlobLeaseClient;
 use AzureOss\Storage\Blob\Specialized\BlockBlobClient;
 use AzureOss\Storage\Common\Auth\StorageSharedKeyCredential;
+use AzureOss\Storage\Common\Helpers\HttpRequestHelper;
 use AzureOss\Storage\Common\Helpers\StorageUriParserHelper;
 use AzureOss\Storage\Common\Middleware\ClientFactory;
 use AzureOss\Storage\Common\Sas\SasProtocol;
 use GuzzleHttp\Client;
 use GuzzleHttp\Pool;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\Psr7\Utils as StreamUtils;
@@ -122,11 +124,14 @@ final class BlobClient
     /** Creates a read-only snapshot of the base blob. */
     public function createSnapshot(CreateSnapshotOptions $options = new CreateSnapshotOptions): BlobSnapshotInfo
     {
-        /** @phpstan-ignore-next-line */
         return $this->createSnapshotAsync($options)->wait();
     }
 
-    /** Asynchronously creates a read-only snapshot of the base blob. */
+    /**
+     * Asynchronously creates a read-only snapshot of the base blob.
+     *
+     * @return PromiseInterface<BlobSnapshotInfo, mixed>
+     */
     public function createSnapshotAsync(CreateSnapshotOptions $options = new CreateSnapshotOptions): PromiseInterface
     {
         return $this->client
@@ -143,11 +148,14 @@ final class BlobClient
     /** Downloads the blob as a streaming response. */
     public function downloadStreaming(DownloadBlobOptions $options = new DownloadBlobOptions): BlobDownloadStreamingResult
     {
-        /** @phpstan-ignore-next-line */
         return $this->downloadStreamingAsync($options)->wait();
     }
 
-    /** Asynchronously downloads the blob as a streaming response. */
+    /**
+     * Asynchronously downloads the blob as a streaming response.
+     *
+     * @return PromiseInterface<BlobDownloadStreamingResult, mixed>
+     */
     public function downloadStreamingAsync(DownloadBlobOptions $options = new DownloadBlobOptions): PromiseInterface
     {
         return $this->client
@@ -161,11 +169,14 @@ final class BlobClient
     /** Gets the blob's properties and metadata without downloading its content. */
     public function getProperties(GetBlobPropertiesOptions $options = new GetBlobPropertiesOptions): BlobProperties
     {
-        /** @phpstan-ignore-next-line */
         return $this->getPropertiesAsync($options)->wait();
     }
 
-    /** Asynchronously gets the blob's properties and metadata. */
+    /**
+     * Asynchronously gets the blob's properties and metadata.
+     *
+     * @return PromiseInterface<BlobProperties, mixed>
+     */
     public function getPropertiesAsync(GetBlobPropertiesOptions $options = new GetBlobPropertiesOptions): PromiseInterface
     {
         return $this->client
@@ -284,7 +295,9 @@ final class BlobClient
     public function deleteIfExistsAsync(DeleteBlobOptions $options = new DeleteBlobOptions): PromiseInterface
     {
         return $this->deleteAsync($options)->otherwise(
-            function (\Throwable $e) {
+            function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof BlobStorageException && $e->errorCode === BlobErrorCode::BlobNotFound) {
                     return null;
                 }
@@ -297,17 +310,22 @@ final class BlobClient
     /** Determines whether the blob exists. */
     public function exists(): bool
     {
-        /** @phpstan-ignore-next-line */
         return $this->existsAsync()->wait();
     }
 
-    /** Asynchronously determines whether the blob exists. */
+    /**
+     * Asynchronously determines whether the blob exists.
+     *
+     * @return PromiseInterface<bool, \Throwable>
+     */
     public function existsAsync(): PromiseInterface
     {
         return $this->getPropertiesAsync()
             ->then(fn () => true)
             ->otherwise(
-                function (\Throwable $e) {
+                function (mixed $reason) {
+                    $e = Create::exceptionFor($reason);
+
                     if ($e instanceof BlobStorageException && $e->errorCode === BlobErrorCode::BlobNotFound) {
                         return false;
                     }
@@ -464,11 +482,14 @@ final class BlobClient
     /** Copies a source blob to this blob in a synchronous service operation. */
     public function syncCopyFromUri(UriInterface $source, SyncCopyFromUriOptions $options = new SyncCopyFromUriOptions): BlobCopyResult
     {
-        /** @phpstan-ignore-next-line */
         return $this->syncCopyFromUriAsync($source, $options)->wait();
     }
 
-    /** Asynchronously performs a synchronous server-side copy to this blob. */
+    /**
+     * Asynchronously performs a synchronous server-side copy to this blob.
+     *
+     * @return PromiseInterface<BlobCopyResult, mixed>
+     */
     public function syncCopyFromUriAsync(UriInterface $source, SyncCopyFromUriOptions $options = new SyncCopyFromUriOptions): PromiseInterface
     {
         return $this->client
@@ -493,11 +514,14 @@ final class BlobClient
     /** Starts a potentially long-running server-side copy to this blob. */
     public function startCopyFromUri(UriInterface $source, StartCopyFromUriOptions $options = new StartCopyFromUriOptions): BlobCopyResult
     {
-        /** @phpstan-ignore-next-line */
         return $this->startCopyFromUriAsync($source, $options)->wait();
     }
 
-    /** Asynchronously starts a potentially long-running server-side copy. */
+    /**
+     * Asynchronously starts a potentially long-running server-side copy.
+     *
+     * @return PromiseInterface<BlobCopyResult, mixed>
+     */
     public function startCopyFromUriAsync(UriInterface $source, StartCopyFromUriOptions $options = new StartCopyFromUriOptions): PromiseInterface
     {
         return $this->client
@@ -670,8 +694,10 @@ final class BlobClient
                 RequestOptions::QUERY => [
                     'comp' => 'tags',
                 ],
-                RequestOptions::HEADERS => $options->conditions?->toHeaders('BlobClient::setTags', RequestConditionSet::ALL) ?? [],
-                RequestOptions::BODY => (new BlobTagsBody($tags))->toXml()->asXML(),
+                RequestOptions::HEADERS => HttpRequestHelper::headers(
+                    $options->conditions?->toHeaders('BlobClient::setTags', RequestConditionSet::ALL) ?? [],
+                ),
+                RequestOptions::BODY => HttpRequestHelper::xml((new BlobTagsBody($tags))->toXml()),
             ]);
     }
 
@@ -682,11 +708,14 @@ final class BlobClient
      */
     public function getTags(GetBlobTagsOptions $options = new GetBlobTagsOptions): array
     {
-        /** @phpstan-ignore-next-line */
         return $this->getTagsAsync($options)->wait();
     }
 
-    /** Asynchronously gets all index tags associated with the blob. */
+    /**
+     * Asynchronously gets all index tags associated with the blob.
+     *
+     * @return PromiseInterface<array<string>, mixed>
+     */
     public function getTagsAsync(GetBlobTagsOptions $options = new GetBlobTagsOptions): PromiseInterface
     {
         return $this->client

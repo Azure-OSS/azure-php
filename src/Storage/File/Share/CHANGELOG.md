@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-No user-facing changes since `0.1.1`.
+### Changed
+
+- Added support for Guzzle 8 while retaining Guzzle 7 support.
 
 ## 0.1.1
 

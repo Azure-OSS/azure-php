@@ -6,6 +6,7 @@ namespace AzureOss\Storage\Queue;
 
 use AzureOss\Identity\TokenCredential;
 use AzureOss\Storage\Common\Auth\StorageSharedKeyCredential;
+use AzureOss\Storage\Common\Helpers\HttpRequestHelper;
 use AzureOss\Storage\Common\Middleware\ClientFactory;
 use AzureOss\Storage\Queue\Exceptions\QueueStorageException;
 use AzureOss\Storage\Queue\Exceptions\QueueStorageExceptionDeserializer;
@@ -20,6 +21,7 @@ use AzureOss\Storage\Queue\Responses\ReceiveMessagesResponseBody;
 use AzureOss\Storage\Queue\Responses\SendMessageResponseBody;
 use AzureOss\Storage\Queue\Responses\UpdateMessageResponseBody;
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\RequestOptions;
 use Psr\Http\Message\UriInterface;
@@ -74,7 +76,9 @@ final class QueueClient
     public function createIfNotExistsAsync(): PromiseInterface
     {
         return $this->createAsync()
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof QueueStorageException && $e->errorCode === QueueErrorCode::QueueAlreadyExists) {
                     return;
                 }
@@ -105,7 +109,9 @@ final class QueueClient
     public function deleteIfExistsAsync(): PromiseInterface
     {
         return $this->deleteAsync()
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof QueueStorageException && $e->errorCode === QueueErrorCode::QueueNotFound) {
                     return;
                 }
@@ -117,11 +123,14 @@ final class QueueClient
     /** Determines whether the queue exists. */
     public function exists(): bool
     {
-        /** @phpstan-ignore-next-line */
         return $this->existsAsync()->wait();
     }
 
-    /** Asynchronously determines whether the queue exists. */
+    /**
+     * Asynchronously determines whether the queue exists.
+     *
+     * @return PromiseInterface<bool, \Throwable>
+     */
     public function existsAsync(): PromiseInterface
     {
         return $this->client
@@ -131,7 +140,9 @@ final class QueueClient
                 ],
             ])
             ->then(fn () => true)
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof QueueStorageException && $e->errorCode === QueueErrorCode::QueueNotFound) {
                     return false;
                 }
@@ -143,11 +154,14 @@ final class QueueClient
     /** Gets queue metadata and approximate message count. */
     public function getProperties(): QueueProperties
     {
-        /** @phpstan-ignore-next-line */
         return $this->getPropertiesAsync()->wait();
     }
 
-    /** Asynchronously gets queue metadata and approximate message count. */
+    /**
+     * Asynchronously gets queue metadata and approximate message count.
+     *
+     * @return PromiseInterface<QueueProperties, mixed>
+     */
     public function getPropertiesAsync(): PromiseInterface
     {
         return $this->client
@@ -179,11 +193,14 @@ final class QueueClient
      */
     public function sendMessage(string $messageText, ?int $visibilityTimeout = null, ?int $timeToLive = null): SendReceipt
     {
-        /** @phpstan-ignore-next-line */
         return $this->sendMessageAsync($messageText, $visibilityTimeout, $timeToLive)->wait();
     }
 
-    /** Asynchronously adds a message to the queue. */
+    /**
+     * Asynchronously adds a message to the queue.
+     *
+     * @return PromiseInterface<SendReceipt, mixed>
+     */
     public function sendMessageAsync(string $messageText, ?int $visibilityTimeout = null, ?int $timeToLive = null): PromiseInterface
     {
         $query = [];
@@ -197,7 +214,7 @@ final class QueueClient
         return $this->client
             ->postAsync($this->messagesUri(), [
                 RequestOptions::QUERY => $query,
-                RequestOptions::BODY => (new QueueMessageRequestBody($messageText))->toXml()->asXML(),
+                RequestOptions::BODY => HttpRequestHelper::xml((new QueueMessageRequestBody($messageText))->toXml()),
             ])
             ->then(SendMessageResponseBody::fromResponse(...));
     }
@@ -207,11 +224,14 @@ final class QueueClient
      */
     public function updateMessage(string $messageId, string $popReceipt, int $visibilityTimeout, ?string $messageText = null): UpdateReceipt
     {
-        /** @phpstan-ignore-next-line */
         return $this->updateMessageAsync($messageId, $popReceipt, $visibilityTimeout, $messageText)->wait();
     }
 
-    /** Asynchronously updates a message's content or visibility timeout. */
+    /**
+     * Asynchronously updates a message's content or visibility timeout.
+     *
+     * @return PromiseInterface<UpdateReceipt, mixed>
+     */
     public function updateMessageAsync(string $messageId, string $popReceipt, int $visibilityTimeout, ?string $messageText = null): PromiseInterface
     {
         $options = [
@@ -222,7 +242,7 @@ final class QueueClient
         ];
 
         if ($messageText !== null) {
-            $options[RequestOptions::BODY] = (new QueueMessageRequestBody($messageText))->toXml()->asXML();
+            $options[RequestOptions::BODY] = HttpRequestHelper::xml((new QueueMessageRequestBody($messageText))->toXml());
         }
 
         return $this->client
@@ -249,15 +269,18 @@ final class QueueClient
     /** Receives the next visible message, or null when the queue has no visible messages. */
     public function receiveMessage(?int $visibilityTimeout = null): ?QueueMessage
     {
-        /** @phpstan-ignore-next-line */
         return $this->receiveMessageAsync($visibilityTimeout)->wait();
     }
 
-    /** Asynchronously receives the next visible message. */
+    /**
+     * Asynchronously receives the next visible message.
+     *
+     * @return PromiseInterface<QueueMessage|null, mixed>
+     */
     public function receiveMessageAsync(?int $visibilityTimeout = null): PromiseInterface
     {
         return $this->receiveMessagesAsync(1, $visibilityTimeout)
-            ->then(fn (array $messages) => $messages[0] ?? null);
+            ->then(fn (array $messages): ?QueueMessage => $messages[0] ?? null);
     }
 
     /**
@@ -269,11 +292,14 @@ final class QueueClient
      */
     public function receiveMessages(?int $maxMessages = null, ?int $visibilityTimeout = null): array
     {
-        /** @phpstan-ignore-next-line  */
         return $this->receiveMessagesAsync($maxMessages, $visibilityTimeout)->wait();
     }
 
-    /** Asynchronously receives a batch of visible messages. */
+    /**
+     * Asynchronously receives a batch of visible messages.
+     *
+     * @return PromiseInterface<array<QueueMessage>, mixed>
+     */
     public function receiveMessagesAsync(?int $maxMessages = null, ?int $visibilityTimeout = null): PromiseInterface
     {
         $query = [];

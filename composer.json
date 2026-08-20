@@ -25,20 +25,20 @@
     }
   ],
   "require-dev": {
-    "php": "^8.2",
+    "php": "^8.3",
     "ext-curl": "*",
     "ext-json": "*",
     "ext-openssl": "*",
     "ext-simplexml": "*",
     "ext-zlib": "*",
     "brianium/paratest": "^7.8",
-    "caseyamcl/guzzle_retry_middleware": "^2.10",
-    "guzzlehttp/guzzle": "^7.8",
-    "guzzlehttp/test-server": "^0.6",
+    "caseyamcl/guzzle_retry_middleware": "^3.0",
+    "guzzlehttp/guzzle": "^8.0",
+    "guzzlehttp/test-server": "^1.0",
     "laravel/pint": "1.30.5",
     "league/flysystem-adapter-test-utilities": "^3.28",
     "league/flysystem-bundle": "^3.7",
-    "orchestra/testbench": "^10.11 || ^11.0",
+    "orchestra/testbench": "^11.2",
     "pestphp/pest": "^3.8",
     "pestphp/pest-plugin-arch": "^3.1",
     "php-http/discovery": "^1.20",
@@ -60,6 +60,8 @@
       "php-http/discovery": true,
       "phpdocumentor/shim": true,
       "phpstan/extension-installer": true
+    },
+    "platform": {
     }
   },
   "scripts": {

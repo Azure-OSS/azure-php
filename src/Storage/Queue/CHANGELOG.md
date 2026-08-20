@@ -1,5 +1,12 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+
+- Added support for Guzzle 8 while retaining Guzzle 7 support.
+- Async operations now declare their resolved promise result types for static analysis and IDEs.
+
 ## 1.1.0
 
 Changes since `1.0.0`.

@@ -17,6 +17,7 @@ use AzureOss\Storage\Blob\Models\ReleasedObjectInfo;
 use AzureOss\Storage\Blob\Models\RenewBlobLeaseOptions;
 use AzureOss\Storage\Blob\Models\RequestConditionSet;
 use AzureOss\Storage\Common\Auth\StorageSharedKeyCredential;
+use AzureOss\Storage\Common\Helpers\HttpRequestHelper;
 use AzureOss\Storage\Common\Middleware\ClientFactory;
 use GuzzleHttp\Client;
 use GuzzleHttp\Promise\PromiseInterface;
@@ -53,11 +54,14 @@ final class BlobLeaseClient
     /** Acquires a finite or infinite lease on the target resource. */
     public function acquire(int $durationSeconds = self::INFINITE_LEASE_DURATION, AcquireBlobLeaseOptions $options = new AcquireBlobLeaseOptions): BlobLease
     {
-        /** @phpstan-ignore-next-line */
         return $this->acquireAsync($durationSeconds, $options)->wait();
     }
 
-    /** Asynchronously acquires a finite or infinite lease. */
+    /**
+     * Asynchronously acquires a finite or infinite lease.
+     *
+     * @return PromiseInterface<BlobLease, mixed>
+     */
     public function acquireAsync(int $durationSeconds = self::INFINITE_LEASE_DURATION, AcquireBlobLeaseOptions $options = new AcquireBlobLeaseOptions): PromiseInterface
     {
         $conditionHeaders = $this->conditionHeaders($options->conditions, 'BlobLeaseClient::acquire');
@@ -67,23 +71,26 @@ final class BlobLeaseClient
                 'comp' => 'lease',
                 'restype' => $this->container ? 'container' : null,
             ]),
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS => HttpRequestHelper::headers([
                 'x-ms-lease-action' => 'acquire',
                 'x-ms-lease-duration' => (string) $durationSeconds,
                 'x-ms-proposed-lease-id' => $this->leaseId,
                 ...$conditionHeaders,
-            ],
+            ]),
         ])->then($this->updateLeaseIdFromResponse(...));
     }
 
     /** Renews the active lease. */
     public function renew(RenewBlobLeaseOptions $options = new RenewBlobLeaseOptions): BlobLease
     {
-        /** @phpstan-ignore-next-line */
         return $this->renewAsync($options)->wait();
     }
 
-    /** Asynchronously renews the active lease. */
+    /**
+     * Asynchronously renews the active lease.
+     *
+     * @return PromiseInterface<BlobLease, mixed>
+     */
     public function renewAsync(RenewBlobLeaseOptions $options = new RenewBlobLeaseOptions): PromiseInterface
     {
         $conditionHeaders = $this->conditionHeaders($options->conditions, 'BlobLeaseClient::renew');
@@ -93,22 +100,25 @@ final class BlobLeaseClient
                 'comp' => 'lease',
                 'restype' => $this->container ? 'container' : null,
             ]),
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS => HttpRequestHelper::headers([
                 ...$conditionHeaders,
                 'x-ms-lease-action' => 'renew',
                 'x-ms-lease-id' => $this->leaseId,
-            ],
+            ]),
         ])->then($this->updateLeaseIdFromResponse(...));
     }
 
     /** Changes the active lease to the proposed lease ID. */
     public function change(string $proposedLeaseId, ChangeBlobLeaseOptions $options = new ChangeBlobLeaseOptions): BlobLease
     {
-        /** @phpstan-ignore-next-line */
         return $this->changeAsync($proposedLeaseId, $options)->wait();
     }
 
-    /** Asynchronously changes the active lease ID. */
+    /**
+     * Asynchronously changes the active lease ID.
+     *
+     * @return PromiseInterface<BlobLease, mixed>
+     */
     public function changeAsync(string $proposedLeaseId, ChangeBlobLeaseOptions $options = new ChangeBlobLeaseOptions): PromiseInterface
     {
         $conditionHeaders = $this->conditionHeaders($options->conditions, 'BlobLeaseClient::change');
@@ -118,12 +128,12 @@ final class BlobLeaseClient
                 'comp' => 'lease',
                 'restype' => $this->container ? 'container' : null,
             ]),
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS => HttpRequestHelper::headers([
                 ...$conditionHeaders,
                 'x-ms-lease-action' => 'change',
                 'x-ms-lease-id' => $this->leaseId,
                 'x-ms-proposed-lease-id' => $proposedLeaseId,
-            ],
+            ]),
         ])->then(function (ResponseInterface $response) use ($proposedLeaseId): BlobLease {
             $this->leaseId = $response->hasHeader('x-ms-lease-id')
                 ? $response->getHeaderLine('x-ms-lease-id')
@@ -136,11 +146,14 @@ final class BlobLeaseClient
     /** Releases the active lease, allowing another client to acquire one immediately. */
     public function release(ReleaseBlobLeaseOptions $options = new ReleaseBlobLeaseOptions): ReleasedObjectInfo
     {
-        /** @phpstan-ignore-next-line */
         return $this->releaseAsync($options)->wait();
     }
 
-    /** Asynchronously releases the active lease. */
+    /**
+     * Asynchronously releases the active lease.
+     *
+     * @return PromiseInterface<ReleasedObjectInfo, mixed>
+     */
     public function releaseAsync(ReleaseBlobLeaseOptions $options = new ReleaseBlobLeaseOptions): PromiseInterface
     {
         $conditionHeaders = $this->conditionHeaders($options->conditions, 'BlobLeaseClient::release');
@@ -150,22 +163,25 @@ final class BlobLeaseClient
                 'comp' => 'lease',
                 'restype' => $this->container ? 'container' : null,
             ]),
-            RequestOptions::HEADERS => [
+            RequestOptions::HEADERS => HttpRequestHelper::headers([
                 ...$conditionHeaders,
                 'x-ms-lease-action' => 'release',
                 'x-ms-lease-id' => $this->leaseId,
-            ],
+            ]),
         ])->then(ReleasedObjectInfo::fromResponse(...));
     }
 
     /** Breaks the active lease, optionally shortening its remaining break period. */
     public function break(?int $breakPeriodSeconds = null, BreakBlobLeaseOptions $options = new BreakBlobLeaseOptions): BlobLease
     {
-        /** @phpstan-ignore-next-line */
         return $this->breakAsync($breakPeriodSeconds, $options)->wait();
     }
 
-    /** Asynchronously breaks the active lease. */
+    /**
+     * Asynchronously breaks the active lease.
+     *
+     * @return PromiseInterface<BlobLease, mixed>
+     */
     public function breakAsync(?int $breakPeriodSeconds = null, BreakBlobLeaseOptions $options = new BreakBlobLeaseOptions): PromiseInterface
     {
         $conditionHeaders = $this->conditionHeaders($options->conditions, 'BlobLeaseClient::break');
@@ -178,7 +194,7 @@ final class BlobLeaseClient
             RequestOptions::HEADERS => array_filter([
                 ...$conditionHeaders,
                 'x-ms-lease-action' => 'break',
-                'x-ms-lease-break-period' => $breakPeriodSeconds,
+                'x-ms-lease-break-period' => $breakPeriodSeconds !== null ? (string) $breakPeriodSeconds : null,
             ], fn ($value) => $value !== null),
         ])->then(fn (ResponseInterface $response): BlobLease => BlobLease::fromResponse($response));
     }

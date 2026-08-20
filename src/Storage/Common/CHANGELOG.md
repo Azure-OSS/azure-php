@@ -2,7 +2,11 @@
 
 ## Unreleased
 
-No user-facing changes since `2.1.1`.
+### Changed
+
+- Added support for Guzzle 8 and its compatible retry middleware while retaining Guzzle 7 support.
+- HTTP failures without a response remain transport exceptions across both Guzzle major versions.
+- Request headers, XML bodies, and promise rejections are normalized across the supported Guzzle versions.
 
 ## 2.1.1
 

@@ -1,0 +1,168 @@
+on:
+  pull_request:
+  push:
+    branches:
+      - "main"
+  workflow_dispatch: ~
+
+name: Tests
+
+jobs:
+  core:
+    name: Core · PHP ${{ matrix.php-version }} · Guzzle 8
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ["8.2", "8.5"]
+
+    services:
+      azurite:
+        image: mcr.microsoft.com/azure-storage/azurite
+        ports:
+          - 10000:10000
+          - 10001:10001
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js for the mock server
+        uses: actions/setup-node@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: curl json
+          coverage: none
+
+      - name: Select core dependencies
+        run: |
+          composer remove --dev laravel/pint orchestra/testbench --no-update --no-interaction
+          composer require --dev php:^8.2 --no-update --no-interaction
+
+      - name: Install dependencies
+        run: composer update --no-interaction --no-progress --optimize-autoloader
+
+      - name: Run core tests
+        run: ./vendor/bin/pest --testsuite core --parallel --display-skipped --display-warnings --display-deprecations
+
+  guzzle-7:
+    name: Core · PHP 8.2 · Guzzle 7
+    runs-on: ubuntu-latest
+
+    services:
+      azurite:
+        image: mcr.microsoft.com/azure-storage/azurite
+        ports:
+          - 10000:10000
+          - 10001:10001
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up Node.js for the mock server
+        uses: actions/setup-node@v6
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.2"
+          extensions: curl json
+          coverage: none
+
+      - name: Select Guzzle 7 dependencies
+        run: |
+          composer remove --dev laravel/pint orchestra/testbench --no-update --no-interaction
+          composer require --dev php:^8.2 caseyamcl/guzzle_retry_middleware:^2.13 guzzlehttp/guzzle:^7.8 guzzlehttp/test-server:^0.6 --no-update --no-interaction
+
+      - name: Install dependencies
+        run: composer update --no-interaction --no-progress --optimize-autoloader
+
+      - name: Run Guzzle 7 compatibility tests
+        run: ./vendor/bin/pest --testsuite core --display-skipped --display-warnings --display-deprecations
+
+  laravel:
+    name: Laravel ${{ matrix.laravel }} · PHP ${{ matrix.php-version }} · Guzzle ${{ matrix.guzzle-major }}
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # Laravel 10 and 11 are retained for compatibility after upstream security support ended.
+          - laravel: 10
+            php-version: "8.2"
+            php-constraint: "^8.2"
+            testbench: "^8.36"
+            phpunit: "^10.5"
+            guzzle-major: 7
+            guzzle: "^7.8"
+            retry: "^2.13"
+            test-server: "^0.6"
+            composer-flags: "--no-blocking"
+          - laravel: 11
+            php-version: "8.2"
+            php-constraint: "^8.2"
+            testbench: "^9.11"
+            phpunit: "^11.5"
+            guzzle-major: 7
+            guzzle: "^7.8"
+            retry: "^2.13"
+            test-server: "^0.6"
+            composer-flags: "--no-blocking"
+          - laravel: 12
+            php-version: "8.2"
+            php-constraint: "^8.2"
+            testbench: "^10.11"
+            phpunit: "^11.5"
+            guzzle-major: 7
+            guzzle: "^7.8"
+            retry: "^2.13"
+            test-server: "^0.6"
+            composer-flags: ""
+          - laravel: 13
+            php-version: "8.3"
+            php-constraint: "^8.3"
+            testbench: "^11.2"
+            phpunit: "^12.5"
+            guzzle-major: 8
+            guzzle: "^8.0"
+            retry: "^3.0"
+            test-server: "^1.0"
+            composer-flags: ""
+
+    services:
+      azurite:
+        image: mcr.microsoft.com/azure-storage/azurite
+        ports:
+          - 10000:10000
+          - 10001:10001
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v7
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: curl json
+          coverage: none
+
+      - name: Remove core-only test dependencies
+        run: composer remove --dev brianium/paratest laravel/pint pestphp/pest pestphp/pest-plugin-arch --no-update --no-interaction
+
+      - name: Select Laravel dependencies
+        run: composer require --dev "php:${{ matrix.php-constraint }}" "orchestra/testbench:${{ matrix.testbench }}" "phpunit/phpunit:${{ matrix.phpunit }}" "guzzlehttp/guzzle:${{ matrix.guzzle }}" "caseyamcl/guzzle_retry_middleware:${{ matrix.retry }}" "guzzlehttp/test-server:${{ matrix.test-server }}" --no-update --no-interaction
+
+      - name: Install dependencies
+        run: composer update --no-interaction --no-progress --optimize-autoloader ${{ matrix.composer-flags }}
+
+      - name: Run Laravel tests
+        run: ./vendor/bin/phpunit --no-configuration tests/Storage/BlobLaravel tests/Storage/QueueLaravel
+        env:
+          AZURE_STORAGE_CONNECTION_STRING: UseDevelopmentStorage=true

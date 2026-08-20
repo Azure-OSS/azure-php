@@ -8,6 +8,7 @@ use AzureOss\Storage\Blob\Models\BlobErrorCode;
 use AzureOss\Storage\Common\Exceptions\RequestExceptionDeserializer;
 use AzureOss\Storage\Common\Exceptions\StorageErrorResponse;
 use GuzzleHttp\Exception\RequestException;
+use Psr\Http\Message\ResponseInterface;
 
 /**
  * @internal
@@ -16,8 +17,13 @@ final class BlobStorageExceptionDeserializer implements RequestExceptionDeserial
 {
     public function deserialize(RequestException $e): \Exception
     {
-        $response = $e->getResponse();
-        if ($response === null) {
+        $getResponse = [$e, 'getResponse'];
+        if (! is_callable($getResponse)) {
+            return $e;
+        }
+
+        $response = $getResponse();
+        if (! $response instanceof ResponseInterface) {
             return $e;
         }
 

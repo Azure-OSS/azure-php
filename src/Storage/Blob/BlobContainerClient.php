@@ -38,6 +38,7 @@ use AzureOss\Storage\Common\Helpers\StorageUriParserHelper;
 use AzureOss\Storage\Common\Middleware\ClientFactory;
 use AzureOss\Storage\Common\Sas\SasProtocol;
 use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Create;
 use GuzzleHttp\Promise\PromiseInterface;
 use GuzzleHttp\Psr7\Query;
 use GuzzleHttp\RequestOptions;
@@ -151,7 +152,9 @@ final class BlobContainerClient
     public function createIfNotExistsAsync(CreateContainerOptions $options = new CreateContainerOptions): PromiseInterface
     {
         return $this->createAsync($options)
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof BlobStorageException && $e->errorCode === BlobErrorCode::ContainerAlreadyExists) {
                     return;
                 }
@@ -190,7 +193,9 @@ final class BlobContainerClient
     public function deleteIfExistsAsync(DeleteContainerOptions $options = new DeleteContainerOptions): PromiseInterface
     {
         return $this->deleteAsync($options)
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof BlobStorageException && $e->errorCode === BlobErrorCode::ContainerNotFound) {
                     return;
                 }
@@ -202,11 +207,14 @@ final class BlobContainerClient
     /** Determines whether the container exists. */
     public function exists(): bool
     {
-        /** @phpstan-ignore-next-line */
         return $this->existsAsync()->wait();
     }
 
-    /** Asynchronously determines whether the container exists. */
+    /**
+     * Asynchronously determines whether the container exists.
+     *
+     * @return PromiseInterface<bool, \Throwable>
+     */
     public function existsAsync(): PromiseInterface
     {
         return $this->client
@@ -216,7 +224,9 @@ final class BlobContainerClient
                 ],
             ])
             ->then(fn () => true)
-            ->otherwise(function (\Throwable $e) {
+            ->otherwise(function (mixed $reason) {
+                $e = Create::exceptionFor($reason);
+
                 if ($e instanceof BlobStorageException && $e->errorCode === BlobErrorCode::ContainerNotFound) {
                     return false;
                 }
@@ -228,11 +238,14 @@ final class BlobContainerClient
     /** Gets the container's properties and metadata. */
     public function getProperties(GetContainerPropertiesOptions $options = new GetContainerPropertiesOptions): BlobContainerProperties
     {
-        /** @phpstan-ignore-next-line */
         return $this->getPropertiesAsync($options)->wait();
     }
 
-    /** Asynchronously gets the container's properties and metadata. */
+    /**
+     * Asynchronously gets the container's properties and metadata.
+     *
+     * @return PromiseInterface<BlobContainerProperties, mixed>
+     */
     public function getPropertiesAsync(GetContainerPropertiesOptions $options = new GetContainerPropertiesOptions): PromiseInterface
     {
         return $this->client

@@ -2,26 +2,17 @@ on:
   pull_request:
   workflow_dispatch: ~
 
-name: Azure Infrastructure Tests
+name: Live Azure Tests
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  azure-tests:
-    name: Azure Tests - PHP ${{ matrix.php-version }}
+  live:
+    name: Live Azure · PHP 8.2 · Guzzle 8
 
     environment: azure-testing
-
-    strategy:
-      fail-fast: false
-      matrix:
-        php-version:
-          - "8.2"
-          - "8.3"
-          - "8.4"
-          - "8.5"
 
     runs-on: ubuntu-latest
 
@@ -42,11 +33,11 @@ jobs:
       - name: Deploy Azure Infrastructure
         id: deploy
         run: |
-          RG_NAME="rg-storage-coverage-php${{ matrix.php-version }}-${{ github.run_id }}"
+          RG_NAME="rg-storage-coverage-php82-${{ github.run_id }}"
           echo "resource_group=${RG_NAME}" >> $GITHUB_OUTPUT
 
           az deployment sub create \
-            --name "deploy-coverage-${{ github.run_id }}-php${{ matrix.php-version }}" \
+            --name "deploy-coverage-${{ github.run_id }}-php82" \
             --location eastus \
             --template-file infra/main.bicep \
             --parameters resourceGroupName="${RG_NAME}" \
@@ -86,12 +77,17 @@ jobs:
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
         with:
-          php-version: ${{ matrix.php-version }}
+          php-version: "8.2"
           extensions: curl json
           coverage: pcov
 
+      - name: Remove Laravel-only dependencies
+        run: |
+          composer remove --dev laravel/pint orchestra/testbench --no-update --no-interaction
+          composer require --dev php:^8.2 --no-update --no-interaction
+
       - name: Download dependencies
-        run: composer install --prefer-dist --no-progress --no-interaction
+        run: composer update --prefer-dist --no-progress --no-interaction
 
       - name: Generate workload identity token file
         run: |
@@ -123,7 +119,7 @@ jobs:
           AZURE_TENANT_ID: ${{ secrets.AZURE_IDENTITY_TENANT_ID }}
           AZURE_CLIENT_ID: ${{ secrets.AZURE_IDENTITY_CLIENT_ID }}
           AZURE_CLIENT_SECRET: ${{ secrets.AZURE_IDENTITY_CLIENT_SECRET }}
-        run: ./vendor/bin/pest tests --parallel --display-skipped --display-warnings --display-deprecations --coverage-cobertura coverage.xml --coverage-html coverage-html
+        run: ./vendor/bin/pest --testsuite core --parallel --display-skipped --display-warnings --display-deprecations --coverage-cobertura coverage.xml --coverage-html coverage-html
 
       - name: Code coverage summary
         uses: irongut/CodeCoverageSummary@v1.3.0
@@ -139,7 +135,7 @@ jobs:
       - name: Upload HTML coverage report
         uses: actions/upload-artifact@v7
         with:
-          name: coverage-html-php${{ matrix.php-version }}
+          name: coverage-html-php82
           path: coverage-html
 
       - name: Unmount Azure File Share

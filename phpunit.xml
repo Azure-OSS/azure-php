@@ -14,27 +14,27 @@
     </php>
 
     <testsuites>
-        <testsuite name="unit">
+        <testsuite name="core">
+            <directory suffix="Test.php">tests/Architecture</directory>
+            <directory suffix="Test.php">tests/Release</directory>
             <directory suffix="Test.php">tests/Identity/Unit</directory>
-            <directory suffix="Test.php">tests/Storage/Blob/Unit</directory>
-            <directory suffix="Test.php">tests/Storage/BlobFlysystemBundle/Unit</directory>
-            <directory suffix="Test.php">tests/Storage/BlobLaravel/Unit</directory>
-            <directory suffix="Test.php">tests/Storage/Common/Unit</directory>
-            <directory suffix="Test.php">tests/Storage/File/Share/Unit</directory>
-            <directory suffix="Test.php">tests/Storage/Queue/Unit</directory>
-            <directory suffix="Test.php">tests/Storage/QueueLaravel/Unit</directory>
-        </testsuite>
-        <testsuite name="functional">
-            <directory suffix="Test.php">tests/Identity/Functional</directory>
-            <directory suffix="Test.php">tests/Storage/Blob/Functional</directory>
-        </testsuite>
-        <testsuite name="integration">
             <directory suffix="Test.php">tests/Identity/Integration</directory>
+            <directory suffix="Test.php">tests/Storage/Blob/Unit</directory>
+            <directory suffix="Test.php">tests/Storage/Blob/Functional</directory>
             <directory suffix="Test.php">tests/Storage/Blob/Integration</directory>
             <directory suffix="Test.php">tests/Storage/BlobFlysystem/Integration</directory>
-            <directory suffix="Test.php">tests/Storage/BlobLaravel/Integration</directory>
+            <directory suffix="Test.php">tests/Storage/BlobFlysystem/Unit</directory>
+            <directory suffix="Test.php">tests/Storage/BlobFlysystemBundle/Unit</directory>
+            <directory suffix="Test.php">tests/Storage/Common/Unit</directory>
+            <directory suffix="Test.php">tests/Storage/File/Share/Unit</directory>
             <directory suffix="Test.php">tests/Storage/File/Share/Integration</directory>
+            <directory suffix="Test.php">tests/Storage/Queue/Unit</directory>
             <directory suffix="Test.php">tests/Storage/Queue/Integration</directory>
+        </testsuite>
+        <testsuite name="laravel">
+            <directory suffix="Test.php">tests/Storage/BlobLaravel/Unit</directory>
+            <directory suffix="Test.php">tests/Storage/BlobLaravel/Integration</directory>
+            <directory suffix="Test.php">tests/Storage/QueueLaravel/Unit</directory>
             <directory suffix="Test.php">tests/Storage/QueueLaravel/Integration</directory>
         </testsuite>
     </testsuites>

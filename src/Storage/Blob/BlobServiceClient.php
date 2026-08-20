@@ -135,11 +135,14 @@ final class BlobServiceClient
      */
     public function undeleteBlobContainer(string $deletedContainerName, string $deletedContainerVersion): BlobContainerClient
     {
-        /** @phpstan-ignore-next-line */
         return $this->undeleteBlobContainerAsync($deletedContainerName, $deletedContainerVersion)->wait();
     }
 
-    /** Asynchronously restores a soft-deleted container and returns a client for it. */
+    /**
+     * Asynchronously restores a soft-deleted container and returns a client for it.
+     *
+     * @return PromiseInterface<BlobContainerClient, mixed>
+     */
     public function undeleteBlobContainerAsync(string $deletedContainerName, string $deletedContainerVersion): PromiseInterface
     {
         $container = $this->getContainerClient($deletedContainerName);

@@ -505,7 +505,7 @@ final class BlobClientTest extends TestCase
 
         $stream = new class($file) implements StreamInterface
         {
-            private StreamInterface $stream;
+            protected StreamInterface $stream;
 
             use StreamDecoratorTrait;
 
@@ -549,7 +549,7 @@ final class BlobClientTest extends TestCase
 
         $stream = new class(new NoSeekStream($file)) implements StreamInterface
         {
-            private StreamInterface $stream;
+            protected StreamInterface $stream;
 
             use StreamDecoratorTrait;
 
