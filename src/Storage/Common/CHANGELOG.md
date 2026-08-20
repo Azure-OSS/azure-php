@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+No user-facing changes since `2.2.0`.
+
+## 2.2.0
+
 ### Changed
 
 - Added support for Guzzle 8 and its compatible retry middleware while retaining Guzzle 7 support.
