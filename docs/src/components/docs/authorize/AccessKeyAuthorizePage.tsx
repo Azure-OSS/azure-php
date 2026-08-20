@@ -21,7 +21,7 @@ export default function AccessKeyAuthorizePage({
   endpointSubdomain,
   notes,
   verifySasCapabilitySnippet,
-}: Props): JSX.Element {
+}: Props): React.JSX.Element {
   return (
     <>
       <p>Access key authentication is the default when you connect using a storage account connection string.</p>
@@ -90,4 +90,3 @@ export default function AccessKeyAuthorizePage({
     </>
   );
 }
-

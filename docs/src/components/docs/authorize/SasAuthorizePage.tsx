@@ -31,7 +31,7 @@ type Props = {
   generationNotSupportedText?: string;
 };
 
-function codeBlock(language: string, code: string): JSX.Element {
+function codeBlock(language: string, code: string): React.JSX.Element {
   return <CodeBlock language={language}>{code.trim() + '\n'}</CodeBlock>;
 }
 
@@ -50,7 +50,7 @@ export default function SasAuthorizePage({
   generationIntro,
   generationSections,
   generationNotSupportedText,
-}: Props): JSX.Element {
+}: Props): React.JSX.Element {
   return (
     <>
       <p>SAS (Shared Access Signature) lets you grant scoped, time-limited access without exposing your account key.</p>

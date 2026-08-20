@@ -24,7 +24,7 @@ export default function EntraIdAuthorizePage({
   dataContributorRole,
   dataReaderRole,
   notes,
-}: Props): JSX.Element {
+}: Props): React.JSX.Element {
   return (
     <>
       <p>Use Microsoft Entra ID when you do not want to use account keys.</p>
@@ -238,4 +238,3 @@ export default function EntraIdAuthorizePage({
     </>
   );
 }
-
