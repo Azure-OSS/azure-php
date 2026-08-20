@@ -6,11 +6,15 @@ namespace AzureOss\Tests\Storage\BlobFlysystem\Integration;
 
 use AzureOss\Storage\Blob\BlobContainerClient;
 use AzureOss\Storage\Blob\BlobServiceClient;
+use AzureOss\Storage\Blob\Models\BlobErrorCode;
 use AzureOss\Storage\BlobFlysystem\AzureBlobStorageAdapter;
 use AzureOss\Tests\RequiresEnvironmentVariables;
 use League\Flysystem\AdapterTestUtilities\FilesystemAdapterTestCase;
 use League\Flysystem\Config;
 use League\Flysystem\FilesystemAdapter;
+use League\Flysystem\UnableToDeleteDirectory;
+use League\Flysystem\UnableToListContents;
+use League\Flysystem\UnableToReadFile;
 use League\Flysystem\UnableToWriteFile;
 use League\Flysystem\Visibility;
 use PHPUnit\Framework\Attributes\Test;
@@ -234,6 +238,42 @@ class AzureBlobStorageTest extends FilesystemAdapterTestCase
             self::fail('Expected overwriting an existing file to fail.');
         } catch (UnableToWriteFile) {
             self::assertSame('original', $adapter->read('create-only.txt'));
+        }
+    }
+
+    #[Test]
+    public function it_reports_the_azure_error_code_as_the_failure_reason(): void
+    {
+        $adapter = $this->adapter();
+
+        try {
+            $adapter->read('does-not-exist.txt');
+            self::fail('Expected reading a missing blob to fail.');
+        } catch (UnableToReadFile $exception) {
+            self::assertStringContainsString(
+                BlobErrorCode::BlobNotFound->value,
+                $exception->reason(),
+            );
+        }
+    }
+
+    #[Test]
+    public function it_reports_a_nested_azure_error_code_as_the_failure_reason(): void
+    {
+        $connectionString = self::getRequiredEnvironmentVariable('AZURE_STORAGE_CONNECTION_STRING');
+        $containerClient = BlobServiceClient::fromConnectionString($connectionString)
+            ->getContainerClient('missing-'.bin2hex(random_bytes(8)));
+        $adapter = new AzureBlobStorageAdapter($containerClient);
+
+        try {
+            $adapter->deleteDirectory('docs');
+            self::fail('Expected deleting from a missing container to fail.');
+        } catch (UnableToDeleteDirectory $exception) {
+            self::assertInstanceOf(UnableToListContents::class, $exception->getPrevious());
+            self::assertStringContainsString(
+                BlobErrorCode::ContainerNotFound->value,
+                $exception->reason(),
+            );
         }
     }
 

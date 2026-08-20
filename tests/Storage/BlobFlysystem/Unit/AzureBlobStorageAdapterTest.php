@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace AzureOss\Tests\Storage\BlobFlysystem\Unit;
 
 use AzureOss\Storage\Blob\BlobContainerClient;
+use AzureOss\Storage\Blob\Exceptions\BlobStorageException;
 use AzureOss\Storage\Blob\Models\BlobContainerClientOptions;
 use AzureOss\Storage\BlobFlysystem\AzureBlobStorageAdapter;
 use AzureOss\Storage\Common\Auth\StorageSharedKeyCredential;
@@ -13,6 +14,7 @@ use GuzzleHttp\Psr7\Uri;
 use League\Flysystem\ChecksumAlgoIsNotSupported;
 use League\Flysystem\Config;
 use League\Flysystem\UnableToGenerateTemporaryUrl;
+use League\Flysystem\UnableToListContents;
 use League\Flysystem\UnableToSetVisibility;
 use League\Flysystem\UnableToWriteFile;
 use PHPUnit\Framework\TestCase;
@@ -54,6 +56,10 @@ final class AzureBlobStorageAdapterTest extends TestCase
                 'initialTransferSize must be an int.',
                 $exception->getPrevious()?->getMessage(),
             );
+            self::assertSame(
+                'initialTransferSize must be an int.',
+                $exception->reason(),
+            );
         }
     }
 
@@ -74,6 +80,22 @@ final class AzureBlobStorageAdapterTest extends TestCase
                 $exception->getPrevious()?->getMessage(),
             );
         }
+    }
+
+    public function test_exception_reason_uses_a_nested_blob_storage_exception(): void
+    {
+        $blobException = new BlobStorageException(
+            'The specified container does not exist.',
+            errorCodeValue: 'ContainerNotFound',
+        );
+        $nestedException = UnableToListContents::atLocation('docs', true, $blobException);
+        $outerException = new \RuntimeException('Outer wrapper.', previous: $nestedException);
+        $method = new \ReflectionMethod(AzureBlobStorageAdapter::class, 'exceptionReason');
+
+        self::assertSame(
+            'ContainerNotFound: The specified container does not exist.',
+            $method->invoke(null, $outerException),
+        );
     }
 
     public function test_public_url_uses_the_prefixed_blob_uri_for_public_containers(): void
