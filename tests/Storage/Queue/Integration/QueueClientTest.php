@@ -220,6 +220,51 @@ final class QueueClientTest extends TestCase
     }
 
     #[Test]
+    public function peek_message_works_without_changing_message_visibility(): void
+    {
+        $queue = $this->tempQueue();
+        $queue->sendMessage('test-1');
+
+        $peekedMessage = $queue->peekMessage();
+
+        self::assertNotNull($peekedMessage);
+        self::assertSame('test-1', $peekedMessage->messageText);
+
+        $receivedMessage = $queue->receiveMessage();
+
+        self::assertNotNull($receivedMessage);
+        self::assertSame($peekedMessage->messageId, $receivedMessage->messageId);
+    }
+
+    #[Test]
+    public function peek_messages_works_without_changing_message_visibility(): void
+    {
+        $queue = $this->tempQueue();
+        $queue->sendMessage('test-1');
+        $queue->sendMessage('test-2');
+
+        $peekedMessages = $queue->peekMessages(maxMessages: 2);
+
+        self::assertCount(2, $peekedMessages);
+
+        $receivedMessages = $queue->receiveMessages(maxMessages: 2);
+
+        self::assertCount(2, $receivedMessages);
+        self::assertEqualsCanonicalizing(
+            array_column($peekedMessages, 'messageId'),
+            array_column($receivedMessages, 'messageId'),
+        );
+    }
+
+    #[Test]
+    public function peek_message_returns_null_when_queue_is_empty(): void
+    {
+        $queue = $this->tempQueue();
+
+        self::assertNull($queue->peekMessage());
+    }
+
+    #[Test]
     public function update_message_works(): void
     {
         $queue = $this->tempQueue();

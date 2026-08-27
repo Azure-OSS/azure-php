@@ -10,6 +10,7 @@ use AzureOss\Storage\Common\Helpers\HttpRequestHelper;
 use AzureOss\Storage\Common\Middleware\ClientFactory;
 use AzureOss\Storage\Queue\Exceptions\QueueStorageException;
 use AzureOss\Storage\Queue\Exceptions\QueueStorageExceptionDeserializer;
+use AzureOss\Storage\Queue\Models\PeekedMessage;
 use AzureOss\Storage\Queue\Models\QueueClientOptions;
 use AzureOss\Storage\Queue\Models\QueueErrorCode;
 use AzureOss\Storage\Queue\Models\QueueMessage;
@@ -17,6 +18,7 @@ use AzureOss\Storage\Queue\Models\QueueProperties;
 use AzureOss\Storage\Queue\Models\SendReceipt;
 use AzureOss\Storage\Queue\Models\UpdateReceipt;
 use AzureOss\Storage\Queue\Requests\QueueMessageRequestBody;
+use AzureOss\Storage\Queue\Responses\PeekMessagesResponseBody;
 use AzureOss\Storage\Queue\Responses\ReceiveMessagesResponseBody;
 use AzureOss\Storage\Queue\Responses\SendMessageResponseBody;
 use AzureOss\Storage\Queue\Responses\UpdateMessageResponseBody;
@@ -315,6 +317,55 @@ final class QueueClient
                 RequestOptions::QUERY => $query,
             ])
             ->then(ReceiveMessagesResponseBody::fromResponse(...));
+    }
+
+    /** Peeks at the next visible message without changing its visibility, or returns null when none is available. */
+    public function peekMessage(): ?PeekedMessage
+    {
+        return $this->peekMessageAsync()->wait();
+    }
+
+    /**
+     * Asynchronously peeks at the next visible message without changing its visibility.
+     *
+     * @return PromiseInterface<PeekedMessage|null, mixed>
+     */
+    public function peekMessageAsync(): PromiseInterface
+    {
+        return $this->peekMessagesAsync(1)
+            ->then(fn (array $messages): ?PeekedMessage => $messages[0] ?? null);
+    }
+
+    /**
+     * Peeks at up to the requested number of visible messages without changing their visibility.
+     *
+     * @param  int|null  $maxMessages  Maximum messages to peek; Azure Storage accepts 1 through 32.
+     * @return PeekedMessage[]
+     */
+    public function peekMessages(?int $maxMessages = null): array
+    {
+        return $this->peekMessagesAsync($maxMessages)->wait();
+    }
+
+    /**
+     * Asynchronously peeks at a batch of visible messages without changing their visibility.
+     *
+     * @return PromiseInterface<array<PeekedMessage>, mixed>
+     */
+    public function peekMessagesAsync(?int $maxMessages = null): PromiseInterface
+    {
+        $query = [
+            'peekonly' => 'true',
+        ];
+        if ($maxMessages !== null) {
+            $query['numofmessages'] = $maxMessages;
+        }
+
+        return $this->client
+            ->getAsync($this->messagesUri(), [
+                RequestOptions::QUERY => $query,
+            ])
+            ->then(PeekMessagesResponseBody::fromResponse(...));
     }
 
     private function messagesUri(): UriInterface

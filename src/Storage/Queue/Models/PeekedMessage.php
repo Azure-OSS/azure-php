@@ -1,0 +1,44 @@
+<?php
+
+declare(strict_types=1);
+
+namespace AzureOss\Storage\Queue\Models;
+
+use AzureOss\Storage\Queue\Exceptions\DeserializationException;
+
+/**
+ * Represents an Azure Storage queue message inspected without changing its visibility.
+ *
+ * Peeked messages do not include a pop receipt and therefore cannot be deleted or updated.
+ */
+final class PeekedMessage
+{
+    private function __construct(
+        public readonly string $messageId,
+        public readonly string $messageText,
+        public readonly \DateTimeInterface $insertionTime,
+        public readonly \DateTimeInterface $expirationTime,
+        public readonly int $dequeueCount,
+    ) {}
+
+    public static function fromXml(\SimpleXMLElement $xml): self
+    {
+        $insertionTime = \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC1123, (string) $xml->InsertionTime);
+        if ($insertionTime === false) {
+            throw new DeserializationException('Azure returned a malformed date.');
+        }
+
+        $expirationTime = \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC1123, (string) $xml->ExpirationTime);
+        if ($expirationTime === false) {
+            throw new DeserializationException('Azure returned a malformed date.');
+        }
+
+        return new self(
+            (string) $xml->MessageId,
+            (string) $xml->MessageText,
+            $insertionTime,
+            $expirationTime,
+            (int) $xml->DequeueCount,
+        );
+    }
+}

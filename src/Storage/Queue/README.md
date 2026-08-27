@@ -54,6 +54,7 @@ $queue->deleteIfExists();
 - Messages:
   - Send messages (with optional visibility timeout and TTL)
   - Receive one or multiple messages (with visibility timeout)
+  - Peek at one or multiple messages without changing their visibility
   - Delete messages
   - Update messages (including visibility timeout)
 
