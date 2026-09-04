@@ -2,7 +2,9 @@
 
 ## Unreleased
 
-No user-facing changes since `1.2.1`.
+### Added
+
+- Added `QueueClient::peekMessage()`, `peekMessageAsync()`, `peekMessages()`, and `peekMessagesAsync()` for inspecting visible messages without changing their visibility.
 
 ## 1.2.1
 
