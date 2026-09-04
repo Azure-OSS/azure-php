@@ -3,6 +3,8 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/azure-oss/storage-queue-laravel.svg)](https://packagist.org/packages/azure-oss/storage-queue-laravel)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/azure-oss/storage-queue-laravel)](https://packagist.org/packages/azure-oss/storage-queue-laravel)
 
+<img src="https://raw.githubusercontent.com/Azure-OSS/azure-storage-monorepo/main/docs/static/img/logo.svg" width="150" alt="PHP OSS for Azure logo">
+
 A Laravel queue driver for Azure Queue Storage built on top of `azure-oss/storage-queue`.
 
 > [!IMPORTANT]

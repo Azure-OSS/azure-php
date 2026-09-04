@@ -3,6 +3,8 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/azure-oss/storage-queue.svg)](https://packagist.org/packages/azure-oss/storage-queue)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/azure-oss/storage-queue)](https://packagist.org/packages/azure-oss/storage-queue)
 
+<img src="https://raw.githubusercontent.com/Azure-OSS/azure-storage-monorepo/main/docs/static/img/logo.svg" width="150" alt="PHP OSS for Azure logo">
+
 A PHP SDK for Azure Queue Storage with support for queue management, message send/receive/delete, and SAS generation.
 
 > [!IMPORTANT]

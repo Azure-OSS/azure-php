@@ -3,6 +3,8 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/azure-oss/storage-file-share.svg)](https://packagist.org/packages/azure-oss/storage-file-share)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/azure-oss/storage-file-share)](https://packagist.org/packages/azure-oss/storage-file-share)
 
+<img src="https://raw.githubusercontent.com/Azure-OSS/azure-storage-monorepo/main/docs/static/img/logo.svg" width="150" alt="PHP OSS for Azure logo">
+
 A PHP SDK for Azure Files service operations and SAS generation.
 
 > [!IMPORTANT]
