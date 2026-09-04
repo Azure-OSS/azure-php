@@ -22,22 +22,8 @@ title: Overview
 - Messages:
   - Send messages (with optional visibility timeout and TTL)
   - Receive one or multiple messages
-  - Peek at one or multiple messages without changing their visibility
   - Delete messages
   - Update messages (including visibility timeout)
-
-## Peek at messages
-
-Peeking retrieves visible messages without changing their visibility or incrementing their dequeue count.
-Peeked messages do not include a pop receipt and therefore cannot be deleted or updated.
-
-```php
-$message = $queue->peekMessage();
-
-if ($message !== null) {
-    echo $message->body;
-}
-```
 
 ## Notes
 

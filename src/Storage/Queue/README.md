@@ -30,11 +30,6 @@ $queue->createIfNotExists();
 
 $queue->sendMessage('Hello from PHP OSS for Azure');
 
-$peekedMessage = $queue->peekMessage();
-if ($peekedMessage !== null) {
-    echo $peekedMessage->body.PHP_EOL;
-}
-
 $message = $queue->receiveMessage(30);
 if ($message !== null) {
     echo $message->messageText.PHP_EOL;
@@ -59,7 +54,6 @@ $queue->deleteIfExists();
 - Messages:
   - Send messages (with optional visibility timeout and TTL)
   - Receive one or multiple messages (with visibility timeout)
-  - Peek at one or multiple messages without changing their visibility
   - Delete messages
   - Update messages (including visibility timeout)
 
