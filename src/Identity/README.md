@@ -3,6 +3,8 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/azure-oss/identity.svg)](https://packagist.org/packages/azure-oss/identity)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/azure-oss/identity)](https://packagist.org/packages/azure-oss/identity)
 
+<img src="https://raw.githubusercontent.com/Azure-OSS/azure-storage-monorepo/main/docs/static/img/logo.svg" width="150" alt="PHP OSS for Azure logo">
+
 A PHP identity library for acquiring Microsoft Entra ID access tokens with client secret, client certificate, workload identity, managed identity, and default credential flows.
 
 > [!IMPORTANT]

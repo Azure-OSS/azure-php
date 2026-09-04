@@ -6,7 +6,7 @@ In November 2023, Microsoft officially archived their [Azure SDK for PHP](https:
 
 We picked up where they left off.
 
-<img src="https://php-oss-for-azure.github.io/img/logo.svg" width="150" alt="Screenshot">
+<img src="https://raw.githubusercontent.com/Azure-OSS/azure-storage-monorepo/main/docs/static/img/logo.svg" width="150" alt="PHP OSS for Azure logo">
 
 ## Requirements
 
@@ -16,24 +16,6 @@ We picked up where they left off.
 ## Documentation
 
 You can read the documentation [here](https://php-oss-for-azure.github.io).
-
-## Development
-
-The root `composer.json`, `phpunit.xml`, and `phpstan.neon` provide the complete local development environment with PHP 8.3 or later, Guzzle 8, and Laravel 13. CI verifies the PHP 8.2, Guzzle 7, and older Laravel compatibility boundaries separately.
-
-Run all tests with `vendor/bin/pest`. To run one side independently, use `vendor/bin/pest --testsuite core` or `vendor/bin/pest --testsuite laravel`.
-
-The storage integration tests expect Azurite on its standard local ports. Start it in a separate terminal before running the tests:
-
-```bash
-npx --yes azurite --silent --location .build/azurite
-```
-
-```bash
-composer update
-vendor/bin/pest
-vendor/bin/phpstan --no-progress --memory-limit=2G
-```
 
 ## Package ecosystem
 

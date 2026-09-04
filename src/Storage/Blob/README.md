@@ -3,6 +3,8 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/azure-oss/storage-blob.svg)](https://packagist.org/packages/azure-oss/storage-blob)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/azure-oss/storage-blob)](https://packagist.org/packages/azure-oss/storage-blob)
 
+<img src="https://raw.githubusercontent.com/Azure-OSS/azure-storage-monorepo/main/docs/static/img/logo.svg" width="150" alt="PHP OSS for Azure logo">
+
 A PHP SDK for Azure Blob Storage with support for containers, blobs, leases, tags, versions, and SAS generation.
 
 > [!IMPORTANT]

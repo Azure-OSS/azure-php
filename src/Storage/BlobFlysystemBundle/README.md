@@ -3,6 +3,8 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/azure-oss/storage-blob-flysystem-bundle.svg)](https://packagist.org/packages/azure-oss/storage-blob-flysystem-bundle)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/azure-oss/storage-blob-flysystem-bundle)](https://packagist.org/packages/azure-oss/storage-blob-flysystem-bundle)
 
+<img src="https://raw.githubusercontent.com/Azure-OSS/azure-storage-monorepo/main/docs/static/img/logo.svg" width="150" alt="PHP OSS for Azure logo">
+
 A Symfony bridge for `azure-oss/storage-blob-flysystem` that registers an `azure_oss` adapter for `league/flysystem-bundle`.
 
 > [!IMPORTANT]

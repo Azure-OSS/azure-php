@@ -3,6 +3,8 @@
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/azure-oss/storage-common.svg)](https://packagist.org/packages/azure-oss/storage-common)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/azure-oss/storage-common)](https://packagist.org/packages/azure-oss/storage-common)
 
+<img src="https://raw.githubusercontent.com/Azure-OSS/azure-storage-monorepo/main/docs/static/img/logo.svg" width="150" alt="PHP OSS for Azure logo">
+
 Shared authentication, HTTP pipeline, API version, ETag, and SAS primitives used by the Azure Storage PHP SDK packages.
 
 > [!IMPORTANT]

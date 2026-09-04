@@ -6,6 +6,12 @@
 
 - Added `QueueClient::peekMessage()`, `peekMessageAsync()`, `peekMessages()`, and `peekMessagesAsync()` for inspecting visible messages without changing their visibility.
 
+## 1.2.1
+
+### Fixed
+
+- Fixed the README logo so it renders on Packagist.
+
 ## 1.2.0
 
 ### Changed

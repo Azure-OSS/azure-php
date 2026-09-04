@@ -2,7 +2,13 @@
 
 ## Unreleased
 
-No user-facing changes since `0.2.0`.
+No user-facing changes since `0.2.1`.
+
+## 0.2.1
+
+### Fixed
+
+- Fixed the README logo so it renders on Packagist.
 
 ## 0.2.0
 
