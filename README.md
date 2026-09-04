@@ -7,7 +7,7 @@ In November 2023, Microsoft officially archived their [Azure SDK for PHP](https:
 
 We picked up where they left off.
 
-<img src="https://azure-oss.github.io/img/logo.svg" width="150" alt="Screenshot">
+<img src="https://raw.githubusercontent.com/Azure-OSS/azure-storage-monorepo/main/docs/static/img/logo.svg" width="150" alt="PHP OSS for Azure logo">
 
 **azure-oss/storage** is a metapackage that bundles the community-driven PHP SDKs for Azure Storage.
 
