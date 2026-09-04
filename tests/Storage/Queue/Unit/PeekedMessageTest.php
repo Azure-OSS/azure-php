@@ -24,9 +24,9 @@ final class PeekedMessageTest extends TestCase
             XML));
 
         self::assertSame('message-id', $message->messageId);
-        self::assertSame('PHNhbXBsZT5tZXNzYWdlPC9zYW1wbGU+', $message->messageText);
-        self::assertSame('2009-09-27T18:41:57+00:00', $message->insertionTime->format(\DateTimeInterface::ATOM));
-        self::assertSame('2009-10-04T18:41:57+00:00', $message->expirationTime->format(\DateTimeInterface::ATOM));
+        self::assertSame('PHNhbXBsZT5tZXNzYWdlPC9zYW1wbGU+', $message->body);
+        self::assertSame('2009-09-27T18:41:57+00:00', $message->insertedOn?->format(\DateTimeInterface::ATOM));
+        self::assertSame('2009-10-04T18:41:57+00:00', $message->expiresOn?->format(\DateTimeInterface::ATOM));
         self::assertSame(3, $message->dequeueCount);
     }
 }

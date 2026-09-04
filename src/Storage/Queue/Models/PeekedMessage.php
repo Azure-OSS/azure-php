@@ -15,29 +15,29 @@ final class PeekedMessage
 {
     private function __construct(
         public readonly string $messageId,
-        public readonly string $messageText,
-        public readonly \DateTimeInterface $insertionTime,
-        public readonly \DateTimeInterface $expirationTime,
+        public readonly string $body,
+        public readonly ?\DateTimeInterface $insertedOn,
+        public readonly ?\DateTimeInterface $expiresOn,
         public readonly int $dequeueCount,
     ) {}
 
     public static function fromXml(\SimpleXMLElement $xml): self
     {
-        $insertionTime = \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC1123, (string) $xml->InsertionTime);
-        if ($insertionTime === false) {
+        $insertedOn = \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC1123, (string) $xml->InsertionTime);
+        if ($insertedOn === false) {
             throw new DeserializationException('Azure returned a malformed date.');
         }
 
-        $expirationTime = \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC1123, (string) $xml->ExpirationTime);
-        if ($expirationTime === false) {
+        $expiresOn = \DateTimeImmutable::createFromFormat(\DateTimeInterface::RFC1123, (string) $xml->ExpirationTime);
+        if ($expiresOn === false) {
             throw new DeserializationException('Azure returned a malformed date.');
         }
 
         return new self(
             (string) $xml->MessageId,
             (string) $xml->MessageText,
-            $insertionTime,
-            $expirationTime,
+            $insertedOn,
+            $expiresOn,
             (int) $xml->DequeueCount,
         );
     }

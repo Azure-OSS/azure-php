@@ -228,7 +228,13 @@ final class QueueClientTest extends TestCase
         $peekedMessage = $queue->peekMessage();
 
         self::assertNotNull($peekedMessage);
-        self::assertSame('test-1', $peekedMessage->messageText);
+        self::assertSame('test-1', $peekedMessage->body);
+
+        $peekedAgain = $queue->peekMessage();
+
+        self::assertNotNull($peekedAgain);
+        self::assertSame($peekedMessage->messageId, $peekedAgain->messageId);
+        self::assertSame($peekedMessage->dequeueCount, $peekedAgain->dequeueCount);
 
         $receivedMessage = $queue->receiveMessage();
 
@@ -254,6 +260,16 @@ final class QueueClientTest extends TestCase
             array_column($peekedMessages, 'messageId'),
             array_column($receivedMessages, 'messageId'),
         );
+    }
+
+    #[Test]
+    public function peek_messages_defaults_to_one_message(): void
+    {
+        $queue = $this->tempQueue();
+        $queue->sendMessage('test-1');
+        $queue->sendMessage('test-2');
+
+        self::assertCount(1, $queue->peekMessages());
     }
 
     #[Test]

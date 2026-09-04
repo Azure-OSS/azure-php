@@ -30,6 +30,11 @@ $queue->createIfNotExists();
 
 $queue->sendMessage('Hello from PHP OSS for Azure');
 
+$peekedMessage = $queue->peekMessage();
+if ($peekedMessage !== null) {
+    echo $peekedMessage->body.PHP_EOL;
+}
+
 $message = $queue->receiveMessage(30);
 if ($message !== null) {
     echo $message->messageText.PHP_EOL;

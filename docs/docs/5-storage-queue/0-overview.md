@@ -26,6 +26,19 @@ title: Overview
   - Delete messages
   - Update messages (including visibility timeout)
 
+## Peek at messages
+
+Peeking retrieves visible messages without changing their visibility or incrementing their dequeue count.
+Peeked messages do not include a pop receipt and therefore cannot be deleted or updated.
+
+```php
+$message = $queue->peekMessage();
+
+if ($message !== null) {
+    echo $message->body;
+}
+```
+
 ## Notes
 
 - SAS authentication is supported, but SAS generation is not supported yet in this SDK.

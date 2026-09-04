@@ -28,7 +28,7 @@ final class PeekMessagesResponseBodyTest extends TestCase
 
         self::assertCount(1, $messages);
         self::assertSame('message-id', $messages[0]->messageId);
-        self::assertSame('hello world', $messages[0]->messageText);
+        self::assertSame('hello world', $messages[0]->body);
     }
 
     #[Test]
