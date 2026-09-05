@@ -13,6 +13,7 @@ We picked up where they left off.
 
 Currently, it includes:
 - [**azure-oss/storage-blob**](https://github.com/Azure-OSS/azure-storage-blob-php) – Azure Blob Storage SDK
+- [**azure-oss/storage-file-share**](https://github.com/php-oss-for-azure/azure-storage-file-share-php) – Azure Storage File Share SDK
 - [**azure-oss/storage-queue**](https://github.com/Azure-OSS/azure-storage-queue-php) – Azure Storage Queue SDK
 
 ## Documentation
