@@ -1,5 +1,8 @@
 # Azure Identity PHP
 
+> [!NOTE]
+> Development happens in the [Azure PHP monorepo](https://github.com/php-oss-for-azure/azure-php). Please report issues, request features, and submit pull requests there.
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/azure-oss/identity.svg)](https://packagist.org/packages/azure-oss/identity)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/azure-oss/identity)](https://packagist.org/packages/azure-oss/identity)
 
@@ -9,9 +12,6 @@ A PHP identity library for acquiring Microsoft Entra ID access tokens with clien
 
 > [!IMPORTANT]
 > This package is community-maintained and is not affiliated with, endorsed by, or supported by Microsoft.
-
-> [!NOTE]
-> Development happens in the [Azure PHP monorepo](https://github.com/php-oss-for-azure/azure-php). Please report issues, request features, and submit pull requests there.
 
 ## Install
 

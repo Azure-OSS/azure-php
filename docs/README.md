@@ -1,12 +1,12 @@
 # Website
 
+> [!NOTE]
+> Development happens in the [Azure PHP monorepo](https://github.com/php-oss-for-azure/azure-php). Please report issues, request features, and submit pull requests there.
+
 This website is built using [Docusaurus](https://docusaurus.io/), a modern static website generator.
 
 > [!IMPORTANT]
 > PHP OSS for Azure is a community-maintained project and is not affiliated with, endorsed by, or supported by Microsoft.
-
-> [!NOTE]
-> Development happens in the [Azure PHP monorepo](https://github.com/php-oss-for-azure/azure-php). Please report issues, request features, and submit pull requests there.
 
 ## Installation
 

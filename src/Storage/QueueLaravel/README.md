@@ -1,5 +1,8 @@
 # Azure Storage Queue driver for Laravel
 
+> [!NOTE]
+> Development happens in the [Azure PHP monorepo](https://github.com/php-oss-for-azure/azure-php). Please report issues, request features, and submit pull requests there.
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/azure-oss/storage-queue-laravel.svg)](https://packagist.org/packages/azure-oss/storage-queue-laravel)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/azure-oss/storage-queue-laravel)](https://packagist.org/packages/azure-oss/storage-queue-laravel)
 
@@ -9,9 +12,6 @@ A Laravel queue driver for Azure Queue Storage built on top of `azure-oss/storag
 
 > [!IMPORTANT]
 > This package is community-maintained and is not affiliated with, endorsed by, or supported by Microsoft.
-
-> [!NOTE]
-> Development happens in the [Azure PHP monorepo](https://github.com/php-oss-for-azure/azure-php). Please report issues, request features, and submit pull requests there.
 
 ## Install
 

@@ -1,5 +1,8 @@
 # Azure Storage Blob PHP
 
+> [!NOTE]
+> Development happens in the [Azure PHP monorepo](https://github.com/php-oss-for-azure/azure-php). Please report issues, request features, and submit pull requests there.
+
 [![Latest Version on Packagist](https://img.shields.io/packagist/v/azure-oss/storage-blob.svg)](https://packagist.org/packages/azure-oss/storage-blob)
 [![Packagist Downloads](https://img.shields.io/packagist/dt/azure-oss/storage-blob)](https://packagist.org/packages/azure-oss/storage-blob)
 
@@ -9,9 +12,6 @@ A PHP SDK for Azure Blob Storage with support for containers, blobs, leases, tag
 
 > [!IMPORTANT]
 > This package is community-maintained and is not affiliated with, endorsed by, or supported by Microsoft.
-
-> [!NOTE]
-> Development happens in the [Azure PHP monorepo](https://github.com/php-oss-for-azure/azure-php). Please report issues, request features, and submit pull requests there.
 
 ## Install
 
