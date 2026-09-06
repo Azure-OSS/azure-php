@@ -26,6 +26,7 @@ jobs:
             repo: php-oss-for-azure/azure-storage-php
             secret: DEPLOY_KEY_STORAGE
             changelog: src/Storage/Meta/CHANGELOG.md
+            preserve_remote_history: true
           - prefix: src/Storage/Common
             tag_prefix: storage-common
             repo: php-oss-for-azure/azure-storage-common-php
@@ -129,6 +130,8 @@ jobs:
         env:
           SSH_KEY: ${{ secrets[matrix.secret] }}
           SPLIT_TAG: ${{ steps.release.outputs.split_tag }}
+          SPLIT_REPO: ${{ matrix.repo }}
+          PRESERVE_REMOTE_HISTORY: ${{ matrix.preserve_remote_history || false }}
         run: |
           mkdir -p ~/.ssh
           chmod 700 ~/.ssh
@@ -138,7 +141,20 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           SHA=$(splitsh-lite --prefix=${{ matrix.prefix }})
-          git push --atomic git@github.com:${{ matrix.repo }}.git \
+
+          if [[ "$PRESERVE_REMOTE_HISTORY" == "true" ]]; then
+            git fetch "git@github.com:$SPLIT_REPO.git" main:refs/remotes/split/main
+
+            if ! git merge-base --is-ancestor refs/remotes/split/main "$SHA"; then
+              TREE=$(git rev-parse "$SHA^{tree}")
+              SHA=$(git commit-tree "$TREE" \
+                -p refs/remotes/split/main \
+                -p "$SHA" \
+                -m "Preserve $SPLIT_REPO history")
+            fi
+          fi
+
+          git push --atomic git@github.com:$SPLIT_REPO.git \
             +$SHA:refs/heads/main \
             $SHA:refs/tags/$SPLIT_TAG
 
