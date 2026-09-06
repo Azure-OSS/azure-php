@@ -10,6 +10,9 @@ Shared authentication, HTTP pipeline, API version, ETag, and SAS primitives used
 > [!IMPORTANT]
 > This package is community-maintained and is not affiliated with, endorsed by, or supported by Microsoft.
 
+> [!NOTE]
+> Development happens in the [Azure PHP monorepo](https://github.com/php-oss-for-azure/azure-php). Please report issues, request features, and submit pull requests there.
+
 ## Install
 
 ```shell
