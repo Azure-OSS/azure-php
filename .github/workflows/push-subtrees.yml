@@ -141,10 +141,9 @@ jobs:
           git config --global user.name "github-actions"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
           SHA=$(splitsh-lite --prefix=${{ matrix.prefix }})
+          git fetch "git@github.com:$SPLIT_REPO.git" main:refs/remotes/split/main
 
           if [[ "$PRESERVE_REMOTE_HISTORY" == "true" ]]; then
-            git fetch "git@github.com:$SPLIT_REPO.git" main:refs/remotes/split/main
-
             if ! git merge-base --is-ancestor refs/remotes/split/main "$SHA"; then
               TREE=$(git rev-parse "$SHA^{tree}")
               SHA=$(git commit-tree "$TREE" \
@@ -154,9 +153,14 @@ jobs:
             fi
           fi
 
-          git push --atomic git@github.com:$SPLIT_REPO.git \
-            +$SHA:refs/heads/main \
-            $SHA:refs/tags/$SPLIT_TAG
+          if ! git merge-base --is-ancestor refs/remotes/split/main "$SHA"; then
+            echo "::error::Refusing to replace $SPLIT_REPO history with a non-fast-forward update."
+            exit 1
+          fi
+
+          git push --atomic "git@github.com:$SPLIT_REPO.git" \
+            "$SHA:refs/heads/main" \
+            "$SHA:refs/tags/$SPLIT_TAG"
 
       - name: Create GitHub Release
         if: steps.release.outputs.matched == 'true' && matrix.changelog != ''
