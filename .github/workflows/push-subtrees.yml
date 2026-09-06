@@ -3,6 +3,7 @@ name: Push Subtrees
 on:
   push:
     tags:
+      - storage-[0-9]*
       - storage-common-*
       - storage-blob-*
       - storage-blob-flysystem-*
@@ -20,6 +21,11 @@ jobs:
     strategy:
       matrix:
         include:
+          - prefix: src/Storage/Meta
+            tag_prefix: storage
+            repo: php-oss-for-azure/azure-storage-php
+            secret: DEPLOY_KEY_STORAGE
+            changelog: src/Storage/Meta/CHANGELOG.md
           - prefix: src/Storage/Common
             tag_prefix: storage-common
             repo: php-oss-for-azure/azure-storage-common-php
